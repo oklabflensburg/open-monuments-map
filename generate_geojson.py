@@ -20,7 +20,7 @@ def main():
         if not o['coords'] or len(o['coords']) != 2:
             continue
 
-        point = Point((float(o['coords'][0]), float(o['coords'][1])))
+        point = Point((float(o['coords'][1]), float(o['coords'][0])))
             
         properties = {
             'object': o['object'],
