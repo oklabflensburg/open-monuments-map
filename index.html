@@ -18,19 +18,19 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 </head>
 <body>
-<div class="flex">
-    <div class="w-9/12" id="map"></div>
-    <div class="w-3/12 bg-gray-100 py-2 px-3" id="filter">
-        <h1 class="text-3xl font-bold">
+<div class="md:flex">
+    <div class="w-full sm:w-9/12 md:w-7/12 min-h-92 md:h-screen overflow-hidden" id="map"></div>
+    <div class="w-full sm:w-3/12 md:w-5/12 bg-gray-100 py-2 px-3" id="filter">
+        <h1 class="text-2xl md:text-3xl font-bold">
             Denkmalliste
         </h1>
-        <h2 class="text-2xl mb-8">
+        <h2 class="text-xl md:text-2xl mb-4 md:mb-8">
             Stadt Flensburg
         </h2>
-        <h2 class="text-2xl mb-3">
+        <h2 class="text-xl md:text-2xl mb-1 md:mb-3">
             Datenquelle
         </h2>
-        <p class="font-mono mb-8">Kulturdenkmale sind gesetzlich geschützt und nachrichtlich in ein Verzeichnis, die
+        <p class="font-mono mb-4 md:mb-8">Kulturdenkmale sind gesetzlich geschützt und nachrichtlich in ein Verzeichnis, die
             sog.
             Denkmalliste,
             einzutragen. Von der Aufnahme in die Denkmalliste werden die betroffenen Eigentümerinnen und Eigentümer
@@ -39,7 +39,7 @@
                     href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege"
                     target="_blank">hier</a> veröffentlicht und wöchentlich aktualisiert.
         </p>
-        <h3 class="text-2xl mb-3">Interaktive Karte</h3>
+        <h3 class="text-xl md:text-2xl mb-1 md:mb-3">Interaktive Karte</h3>
         <p class="font-mono">Während einer kleinen Programmierarbeit ist diese interaktive webbasierte Karte mit den
             Daten des
             Landesamtes für Denkmalpflege entstanden. Nach einigen Stunden der maschinellen Aufarbeitung und
