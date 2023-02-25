@@ -1,6 +1,11 @@
-* {
+html, body {
     margin: 0;
     padding: 0;
+}
+
+.table {
+    border-collapse: separate;
+    border-spacing: 5em;
 }
 
 .leaflet-popup-content {
@@ -9,21 +14,16 @@
     font-size: 1.3em;
 }
 
-tr > td:first-of-type {
-    padding-right: 15px;
-    font-weight: bold;
-}
-
-td {
-    vertical-align: top;
-}
-
 #map {
     width: 100%;
     height: 40vh
 }
 
 @media (min-width: 768px) {
+    tr > td:first-of-type {
+        padding-right: 15px;
+    }
+
     #map {
         width: 100%;
         height: 100vh

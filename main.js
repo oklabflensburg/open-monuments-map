@@ -18,7 +18,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-let s_light_style = {
+let markerStyle = {
     radius: 8,
     fillColor: "#007cff",
     color: "#000",
@@ -32,20 +32,33 @@ let markers = L.markerClusterGroup();
 function marker(data) {
     const geojsonGroup = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
-            let popupContent = '<div class="popup"><table class="table table-striped">' +
-                '<tbody><tr><td valign="top">Bezeichnung</td><td>' + feature.properties.type + '</td></tr>' +
-                '<tr><td valign="top">Denkmaltyp</td><td>' + feature.properties.designation + '</td></tr>' +
-                '<tr><td valign="top">Fotolink</td><td><a href="' + feature.properties.url + '" target="_blank">' + feature.properties.url + '</a></td></tr>' +
-                '<tr><td valign="top">Beschreibung</td><td>' + feature.properties.description + '</td></tr>' +
-                '<tr><td valign="top">Begründung</td><td>' + feature.properties.reasons + '</td></tr>' +
-                '<tr><td valign="top">Schutzumfang</td><td>' + feature.properties.scope + '</td></tr>' +
-                '<tr><td valign="top">Adresse</td><td>' + feature.properties.address + '</td></tr></tbody></table>';
+            let popupContentUrl = ''
+
+            if (feature.properties.url) {
+                popupContentUrl = '<div class="md:grid md:grid-cols-5"><div class="font-bold">Denkmaltyp</div><div class="col-span-3">' + feature.properties.url + '</div></div>'
+            }
+
+            let popupContent =
+                '<div class="popup grid grid-rows-6 auto-cols-max grid-flow-col gap-2 font-mono">' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Bezeichnung</div>' +
+                '<div class="col-span-3">' + feature.properties.type + '</div></div>' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Denkmaltyp</div>' +
+                '<div class="col-span-3">' + feature.properties.designation + '</div></div>' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Beschreibung</div>' +
+                popupContentUrl +
+                '<div class="col-span-3">' + feature.properties.description + '</div></div>' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Begründung</div>' +
+                '<div class="col-span-3">' + feature.properties.reasons + '</div></div>' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Schutzumfang</div>' +
+                '<div class="col-span-3">' + feature.properties.scope + '</div></div>' +
+                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Adresse</div>' +
+                '<div class="col-span-3">' + feature.properties.address + '</div></div></div>';
             layer.bindPopup(popupContent, {
-                maxWidth: 560
+                maxWidth: 460
             })
         },
         pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, s_light_style);
+            return L.circleMarker(latlng, markerStyle);
         }
     });
 
