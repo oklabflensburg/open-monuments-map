@@ -31,34 +31,32 @@ let markers = L.markerClusterGroup();
 
 function marker(data) {
     const geojsonGroup = L.geoJSON(data, {
-        onEachFeature: function (feature, layer) {
-            let popupContentUrl = ''
-
-            if (feature.properties.url) {
-                popupContentUrl = '<div class="md:grid md:grid-cols-5"><div class="font-bold">Denkmaltyp</div><div class="col-span-3">' + feature.properties.url + '</div></div>'
-            }
-
-            let popupContent =
-                '<div class="popup grid grid-rows-6 auto-cols-max grid-flow-col gap-2 font-mono">' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Bezeichnung</div>' +
-                '<div class="col-span-3">' + feature.properties.type + '</div></div>' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Denkmaltyp</div>' +
-                '<div class="col-span-3">' + feature.properties.designation + '</div></div>' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Beschreibung</div>' +
-                popupContentUrl +
-                '<div class="col-span-3">' + feature.properties.description + '</div></div>' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Begründung</div>' +
-                '<div class="col-span-3">' + feature.properties.reasons + '</div></div>' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Schutzumfang</div>' +
-                '<div class="col-span-3">' + feature.properties.scope + '</div></div>' +
-                '<div class="md:grid md:grid-cols-5"><div class="font-bold">Adresse</div>' +
-                '<div class="col-span-3">' + feature.properties.address + '</div></div></div>';
-            layer.bindPopup(popupContent, {
-                maxWidth: 460
-            })
-        },
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, markerStyle);
+        },
+        onEachFeature: function (feature, layer) {
+            layer.on('click', function (e) {
+                map.setView(e.latlng, 18);
+
+                let scope = e.target.feature.properties.scope
+                let reasons = e.target.feature.properties.reasons
+
+                if (Array.isArray(scope)) {
+                    scope = scope.join(', ')
+                }
+
+                if (Array.isArray(reasons)) {
+                    reasons = reasons.join(', ')
+                }
+
+                document.getElementById('details').classList.remove('hidden');
+                document.getElementById('type').innerHTML = e.target.feature.properties.type;
+                document.getElementById('designation').innerHTML = e.target.feature.properties.designation;
+                document.getElementById('description').innerHTML = e.target.feature.properties.description;
+                document.getElementById('reasons').innerHTML = reasons;
+                document.getElementById('scope').innerHTML = scope;
+                document.getElementById('address').innerHTML = e.target.feature.properties.address;
+            })
         }
     });
 

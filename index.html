@@ -20,30 +20,51 @@
 <body>
 <div class="h-screen md:flex">
     <div class="w-full sm:w-8/12 md:w-7/12 lg:w-9/12 h-96 sm:h-screen overflow-hidden" id="map"></div>
-    <div class="w-full sm:w-4/12 md:w-5/12 lg:w-3/12 sm:h-screen sm:overflow-scroll bg-gray-100 py-2 px-3" id="filter">
-        <h1 class="text-2xl md:text-3xl font-bold">
-            Denkmalliste
-        </h1>
-        <h2 class="text-xl md:text-2xl mb-4 md:mb-8">
-            Stadt Flensburg
-        </h2>
-        <h2 class="text-xl md:text-2xl mb-1 md:mb-3">
-            Datenquelle
-        </h2>
-        <p class="font-mono mb-4 md:mb-8">Kulturdenkmale sind gesetzlich geschützt und nachrichtlich in ein Verzeichnis,
-            die sog. Denkmalliste, einzutragen. Von der Aufnahme in die Denkmalliste werden die betroffenen
-            Eigentümerinnen und Eigentümer benachrichtigt. Gleichzeitig wird die Denkmalliste <a
-                    class="text-blue-600 hover:text-blue-500 focus:text-blue:500"
-                    href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege"
-                    target="_blank">hier</a> veröffentlicht und wöchentlich aktualisiert.
-        </p>
-        <h3 class="text-xl md:text-2xl mb-1 md:mb-3">Interaktive Karte</h3>
-        <p class="font-mono">Während einer kleinen Programmierarbeit ist diese interaktive webbasierte Karte mit den
-            Daten des Landesamtes für Denkmalpflege entstanden. Nach einigen Stunden der maschinellen Aufarbeitung und
-            Betrachtung des Datensatzes und dem anschließendem maschinellem zuordnen der jeweiligen Geografischen
-            Position, konnten die ersten Einträge visualisiert werden. Unser Ziel ist es Interessierten eine Nutzung der
-            offenen Daten mit wenig Arbeit und einem Mehrwert anzubieten
-        </p>
+    <div class="w-full sm:w-4/12 md:w-5/12 lg:w-3/12 sm:h-screen sm:overflow-scroll bg-gray-100" id="filter">
+        <div class="bg-gray-300">
+            <div class="hidden py-2 px-3" id="details">
+                <div class="font-bold">Type</div>
+                <div class="mb-2" id="type"></div>
+                <div class="font-bold">Bezeichnung</div>
+                <div class="mb-2" id="designation"></div>
+                <div class="font-bold">Beschreibung</div>
+                <div class="mb-2" id="description"></div>
+                <div class="font-bold">Begründung</div>
+                <div class="mb-2" id="reasons"></div>
+                <div class="font-bold">Schutzumfang</div>
+                <div class="mb-2" id="scope"></div>
+                <div class="font-bold">Adresse</div>
+                <div id="address"></div>
+            </div>
+        </div>
+        <div class="py-2 px-3">
+            <h1 class="text-2xl md:text-3xl font-bold">
+                Denkmalliste
+            </h1>
+            <h2 class="text-xl md:text-2xl mb-4 md:mb-8">
+                Stadt Flensburg
+            </h2>
+            <h2 class="text-xl md:text-2xl mb-1 md:mb-3">
+                Datenquelle
+            </h2>
+            <p class="font-mono mb-4 md:mb-8">Kulturdenkmale sind gesetzlich geschützt und nachrichtlich in ein
+                Verzeichnis,
+                die sog. Denkmalliste, einzutragen. Von der Aufnahme in die Denkmalliste werden die betroffenen
+                Eigentümerinnen und Eigentümer benachrichtigt. Gleichzeitig wird die Denkmalliste <a
+                        class="text-blue-600 hover:text-blue-500 focus:text-blue:500"
+                        href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege"
+                        target="_blank">hier</a> veröffentlicht und wöchentlich aktualisiert.
+            </p>
+            <h3 class="text-xl md:text-2xl mb-1 md:mb-3">Interaktive Karte</h3>
+            <p class="font-mono">Während einer kleinen Programmierarbeit ist diese interaktive webbasierte Karte mit den
+                Daten des Landesamtes für Denkmalpflege entstanden. Nach einigen Stunden der maschinellen Aufarbeitung
+                und
+                Betrachtung des Datensatzes und dem anschließendem maschinellem zuordnen der jeweiligen Geografischen
+                Position, konnten die ersten Einträge visualisiert werden. Unser Ziel ist es Interessierten eine Nutzung
+                der
+                offenen Daten mit wenig Arbeit und einem Mehrwert anzubieten
+            </p>
+        </div>
     </div>
 </div>
 <script src="main.js"></script>
