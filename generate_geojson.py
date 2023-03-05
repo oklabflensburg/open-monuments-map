@@ -6,7 +6,7 @@ from geojson import FeatureCollection, Feature, Point
 
 
 def get_data():
-    with open('updated_flensburg_denkmalschutz.json', 'r') as f:
+    with open('flensburg_denkmalschutz.json', 'r') as f:
         d = json.loads(f.read())
     
     return d

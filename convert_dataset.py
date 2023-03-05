@@ -1,30 +1,43 @@
-#!/usr/bin/python3
+#!./venv/bin/python
 
+import os
 import re
 import json
 import requests
 
+from geopy.geocoders import GoogleV3
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+API_KEY = os.environ.get('API_KEY')
+
 
 def get_data():
-    with open('flensburg_denkmalschutz.json', 'r') as f:
+    with open('stadt-flensburg.json', 'r') as f:
         d = json.loads(f.read())
-    
+
     return d
 
 
 def get_coords(addr):
-    url = f'https://nominatim.openstreetmap.org?q={addr}&format=json'
-    print(url)
+    print(addr)
+    g = GoogleV3(api_key=API_KEY)
+    locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
-    r = requests.get(url)
-
-    if r.status_code == 200:
-        j = json.loads(r.content)
+    if locations:
+        print(locations.address)
+        print(f'{locations.latitude}, {locations.longitude}')
 
         try:
-            return [j[0]['lat'], j[0]['lon']]
+            return [locations.latitude, locations.longitude]
         except IndexError as e:
             return []
+    else:
+        return []
 
 
 def defuck(line):
@@ -112,13 +125,13 @@ def main():
                     o['scope'] = o.pop('Schutzumfang')
 
                 o['address'] = a
-                o['coords'] = get_coords(f'{a.replace(" ", "+")}+Flensburg')
+                o['coords'] = get_coords([a, 'Flensburg'])
 
                 del o['Adresse-Lage']
                 aa.append(o)
             break
 
-    with open('updated_flensburg_denkmalschutz.json', 'w') as f:
+    with open('flensburg_denkmalschutz.json', 'w') as f:
         json.dump(aa, f)
 
 
