@@ -18,11 +18,12 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 </head>
 <body>
-<div class="h-screen md:flex">
+<div class="h-screen md:flex overflow-auto">
     <div class="w-full sm:w-8/12 md:w-7/12 lg:w-9/12 h-96 sm:h-screen overflow-hidden" id="map"></div>
     <div class="w-full sm:w-4/12 md:w-5/12 lg:w-3/12 sm:h-screen sm:overflow-scroll bg-gray-100" id="filter">
         <div class="bg-gray-300">
             <div class="hidden py-2 px-3" id="details">
+                <div id="img"></div>
                 <div class="font-bold">Type</div>
                 <div class="mb-2" id="type"></div>
                 <div class="font-bold">Bezeichnung</div>

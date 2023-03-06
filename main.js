@@ -27,19 +27,34 @@ let markerStyle = {
     fillOpacity: 0.8
 };
 
-let markers = L.markerClusterGroup();
+let greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+let markers = L.markerClusterGroup({
+    zoomToBoundsOnClick: true,
+    disableClusteringAtZoom: 18
+});
 
 function marker(data) {
     const geojsonGroup = L.geoJSON(data, {
         pointToLayer: function (feature, latlng) {
-            return L.circleMarker(latlng, markerStyle);
+            return L.marker(latlng);
         },
         onEachFeature: function (feature, layer) {
             layer.on('click', function (e) {
+                document.getElementById('filter').scrollTo({top: 0, behavior: 'smooth'});
+
                 map.setView(e.latlng, 18);
 
                 let scope = e.target.feature.properties.scope
                 let reasons = e.target.feature.properties.reasons
+                let url = e.target.feature.properties.url
 
                 if (Array.isArray(scope)) {
                     scope = scope.join(', ')
@@ -49,7 +64,14 @@ function marker(data) {
                     reasons = reasons.join(', ')
                 }
 
+                if (url.length > 0) {
+                    img = '<img class="mb-3" src="' + url + '" alt="Denkmalschutz Objekt">';
+                } else {
+                    img = '';
+                }
+
                 document.getElementById('details').classList.remove('hidden');
+                document.getElementById('img').innerHTML = img;
                 document.getElementById('type').innerHTML = e.target.feature.properties.type;
                 document.getElementById('designation').innerHTML = e.target.feature.properties.designation;
                 document.getElementById('description').innerHTML = e.target.feature.properties.description;
