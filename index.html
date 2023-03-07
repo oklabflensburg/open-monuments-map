@@ -2,20 +2,20 @@
 <html lang="de">
 <head>
     <meta charset="utf-8">
-    <title> Denkmalliste Stadt Flensburg</title>
+    <title>Denkmalliste Stadt Flensburg</title>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
     <link crossorigin="" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
           integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
           rel="stylesheet">
     <link href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" rel="stylesheet">
     <link href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" rel="stylesheet">
+    <link href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css" rel="stylesheet">
     <link href="https://unpkg.com/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
     <link href="main.css" rel="stylesheet">
 
-    <script crossorigin=""
-            integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-            src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet-src.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
 </head>
 <body>
 <div class="h-screen md:flex overflow-auto">
@@ -24,8 +24,8 @@
         <div class="bg-gray-300">
             <div class="hidden py-2 px-3" id="details">
                 <div id="img"></div>
-                <div class="font-bold">Type</div>
-                <div class="mb-2" id="type"></div>
+                <div class="font-bold">Adresse</div>
+                <div class="mb-2" id="address"></div>
                 <div class="font-bold">Bezeichnung</div>
                 <div class="mb-2" id="designation"></div>
                 <div class="font-bold">Beschreibung</div>
@@ -34,8 +34,8 @@
                 <div class="mb-2" id="reasons"></div>
                 <div class="font-bold">Schutzumfang</div>
                 <div class="mb-2" id="scope"></div>
-                <div class="font-bold">Adresse</div>
-                <div id="address"></div>
+                <div class="font-bold">Typ</div>
+                <div id="type"></div>
             </div>
         </div>
         <div class="py-2 px-3">

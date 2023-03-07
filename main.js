@@ -18,43 +18,51 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-let markerStyle = {
-    radius: 8,
-    fillColor: "#007cff",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
+let geocoder = L.Control.Geocoder.nominatim();
 
-let greenIcon = new L.Icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
+if (typeof URLSearchParams !== 'undefined' && location.search) {
+    // parse /?geocoder=nominatim from URL
+    let params = new URLSearchParams(location.search);
+    let geocoderString = params.get('geocoder');
 
-let markers = L.markerClusterGroup({
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 18
+    if (geocoderString && L.Control.Geocoder[geocoderString]) {
+        console.log('Using geocoder', geocoderString);
+        geocoder = L.Control.Geocoder[geocoderString]();
+    } else if (geocoderString) {
+        console.warn('Unsupported geocoder', geocoderString);
+    }
+}
+
+const osmGeocoder = new L.Control.geocoder({
+    query: 'Flensburg',
+    position: 'topright',
+    placeholder: 'Adresse oder Ort',
+    defaultMarkGeocode: false
+}).addTo(map);
+
+osmGeocoder.on('markgeocode', e => {
+    console.log(e);
+    const bounds = L.latLngBounds(e.geocode.bbox._southWest, e.geocode.bbox._northEast);
+    map.fitBounds(bounds);
 });
 
 function marker(data) {
+    let markers = L.markerClusterGroup({
+        zoomToBoundsOnClick: true,
+        disableClusteringAtZoom: 18
+    });
+
     const geojsonGroup = L.geoJSON(data, {
-        pointToLayer: function (feature, latlng) {
-            return L.marker(latlng);
-        },
         onEachFeature: function (feature, layer) {
             layer.on('click', function (e) {
                 document.getElementById('filter').scrollTo({top: 0, behavior: 'smooth'});
 
-                map.setView(e.latlng, 18);
+                map.setView(e.latlng, 19);
 
                 let scope = e.target.feature.properties.scope
                 let reasons = e.target.feature.properties.reasons
                 let url = e.target.feature.properties.url
+                let image = '';
 
                 if (Array.isArray(scope)) {
                     scope = scope.join(', ')
@@ -65,20 +73,21 @@ function marker(data) {
                 }
 
                 if (url.length > 0) {
-                    img = '<img class="mb-3" src="' + url + '" alt="Denkmalschutz Objekt">';
-                } else {
-                    img = '';
+                    image = '<img class="mt-1 mb-3" src="' + url + '" alt="Denkmalschutz Objekt">';
                 }
 
                 document.getElementById('details').classList.remove('hidden');
-                document.getElementById('img').innerHTML = img;
+                document.getElementById('address').innerHTML = e.target.feature.properties.address;
                 document.getElementById('type').innerHTML = e.target.feature.properties.type;
                 document.getElementById('designation').innerHTML = e.target.feature.properties.designation;
                 document.getElementById('description').innerHTML = e.target.feature.properties.description;
                 document.getElementById('reasons').innerHTML = reasons;
                 document.getElementById('scope').innerHTML = scope;
-                document.getElementById('address').innerHTML = e.target.feature.properties.address;
+                document.getElementById('img').innerHTML = image;
             })
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng);
         }
     });
 
