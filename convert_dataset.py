@@ -24,7 +24,6 @@ def get_data():
 
 
 def get_coords(addr):
-    print(addr)
     g = GoogleV3(api_key=API_KEY)
     locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
