@@ -41,7 +41,6 @@ const osmGeocoder = new L.Control.geocoder({
 }).addTo(map);
 
 osmGeocoder.on('markgeocode', e => {
-    console.log(e);
     const bounds = L.latLngBounds(e.geocode.bbox._southWest, e.geocode.bbox._northEast);
     map.fitBounds(bounds);
 });
