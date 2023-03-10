@@ -54,7 +54,10 @@ function marker(data) {
     const geojsonGroup = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
             layer.on('click', function (e) {
-                document.getElementById('filter').scrollTo({top: 0, behavior: 'smooth'});
+                document.getElementById('filter').scrollTo({
+                    top: 0,
+                    left: 0
+                });
 
                 map.setView(e.latlng, 19);
 
