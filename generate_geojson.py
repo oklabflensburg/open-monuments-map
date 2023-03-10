@@ -31,6 +31,7 @@ def main():
             'url': o['url'] if 'url' in o else '',
             'description': o['description'],
             'reasons': o['reasons'] if 'reasons' in o else '',
+            'postal_code': o['postal_code'],
             'scope': o['scope'],
             'address': o['address']
         }

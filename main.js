@@ -78,8 +78,12 @@ function marker(data) {
                     image = '<img class="mt-1 mb-3" src="' + url + '" alt="Denkmalschutz Objekt">';
                 }
 
+                let address = e.target.feature.properties.address
+                let postal_code = e.target.feature.properties.postal_code
+                let district = e.target.feature.properties.district.slice(6)
+
                 document.getElementById('details').classList.remove('hidden');
-                document.getElementById('address').innerHTML = e.target.feature.properties.address;
+                document.getElementById('address').innerHTML = address + '<br>' + postal_code + ' ' + district;
                 document.getElementById('type').innerHTML = e.target.feature.properties.type;
                 document.getElementById('designation').innerHTML = e.target.feature.properties.designation;
                 document.getElementById('description').innerHTML = e.target.feature.properties.description;

@@ -23,20 +23,28 @@ def get_data():
     return d
 
 
-def get_coords(addr):
+def get_geolocation(addr):
     g = GoogleV3(api_key=API_KEY)
     locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
     if locations:
-        print(locations.address)
-        print(f'{locations.latitude}, {locations.longitude}')
+        loc = {
+            'coords': None,
+            'postal_code': None
+        }
+
+        for component in locations.raw['address_components']:
+            if 'postal_code' in component['types']:
+                loc['postal_code'] = component['short_name']
 
         try:
-            return [locations.latitude, locations.longitude]
+            loc['coords'] = [locations.latitude, locations.longitude]
         except IndexError as e:
-            return []
-    else:
-        return []
+            pass
+
+    print(loc)
+
+    return loc
 
 
 def defuck(line):
@@ -95,6 +103,8 @@ def main():
                     a = h
 
                 o = i.copy()
+                
+                loc = get_geolocation([a, o['Kreis']])
 
                 if 'Objektnummer' in o:
                     o['object'] = o.pop('Objektnummer')
@@ -124,9 +134,13 @@ def main():
                     o['scope'] = o.pop('Schutzumfang')
 
                 o['address'] = a
-                o['coords'] = get_coords([a, 'Flensburg'])
+
+                o['postal_code'] = loc['postal_code']
+
+                o['coords'] = loc['coords']
 
                 del o['Adresse-Lage']
+
                 aa.append(o)
             break
 
