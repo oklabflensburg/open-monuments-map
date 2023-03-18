@@ -15,7 +15,7 @@ const map = L.map('map').setView([54.7836, 9.4321], 13);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
 }).addTo(map);
 
 let geocoder = L.Control.Geocoder.nominatim();
