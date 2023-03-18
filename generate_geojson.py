@@ -16,6 +16,13 @@ def main():
     d = get_data()
     fc = []
 
+    crs = {
+        'type': 'name',
+        'properties': {
+            'name': 'urn:ogc:def:crs:OGC:1.3:CRS84'
+        }
+    }
+
     for o in d:
         if not o['coords'] or len(o['coords']) != 2:
             continue
@@ -38,7 +45,7 @@ def main():
 
         fc.append(Feature(geometry=point, properties=properties))
 
-    c = FeatureCollection(fc)
+    c = FeatureCollection(fc, crs=crs)
 
     with open('flensburg_denkmalschutz.geojson', 'w') as f:
         json.dump(c, f)
