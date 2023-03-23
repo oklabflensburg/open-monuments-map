@@ -27,12 +27,12 @@ def get_geolocation(addr):
     g = GoogleV3(api_key=API_KEY)
     locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
-    if locations:
-        loc = {
-            'coords': None,
-            'postal_code': None
-        }
+    loc = {
+        'coords': None,
+        'postal_code': None
+    }
 
+    try:
         for component in locations.raw['address_components']:
             if 'postal_code' in component['types']:
                 loc['postal_code'] = component['short_name']
@@ -41,6 +41,8 @@ def get_geolocation(addr):
             loc['coords'] = [locations.latitude, locations.longitude]
         except IndexError as e:
             pass
+    except Exception as e:
+        print(e)
 
     print(loc)
 
