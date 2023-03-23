@@ -1,7 +1,10 @@
-# Open Monuments
+# Open Monuments Map
 
 
 ![Drag Racing](https://raw.githubusercontent.com/p3t3r67x0/open-monument-protection/main/denkmalliste_stadt_flensburg.png)
+
+
+_Haftungsausschluss: Dieses Repository und die zugehörige Datenbank befinden sich derzeit in einer Beta-Version. Einige Aspekte des Codes und der Daten können noch Fehler enthalten. Bitte kontaktieren Sie uns per E-Mail oder erstellen Sie ein Issue auf GitHub, wenn Sie einen Fehler entdecken._
 
 
 ## Datenquelle
