@@ -1,21 +1,21 @@
 fetch('./flensburg_denkmalschutz.geojson', {
     method: 'GET'
 })
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        marker(data);
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
+.then((response) => {
+    return response.json();
+})
+.then((data) => {
+    marker(data);
+})
+.catch(function (error) {
+    console.log(error);
+});
 
 const map = L.map('map').setView([54.7836, 9.4321], 13);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
 let geocoder = L.Control.Geocoder.nominatim();
@@ -93,6 +93,8 @@ function marker(data) {
             })
         },
         pointToLayer: function (feature, latlng) {
+            console.log(latlng)
+
             let label = String(feature.properties.address);
 
             return L.marker(latlng).bindTooltip(label, {
