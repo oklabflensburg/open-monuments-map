@@ -146,9 +146,18 @@ function marker(data) {
             })
         },
         pointToLayer: function (feature, latlng) {
-            let label = String(feature.properties.address)
+            const label = String(feature.properties.address)
 
-            return L.marker(latlng).bindTooltip(label, {
+            const customIcon = L.icon({
+                iconUrl: '/static/marker-icon-blue.png',
+                shadowUrl: '/static/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                tooltipAnchor: [2, -41],
+                shadowSize: [45, 41]
+            })
+
+            return L.marker(latlng, {icon: customIcon}).bindTooltip(label, {
                 permanent: false,
                 direction: 'top'
             }).openTooltip()
