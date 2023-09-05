@@ -14,8 +14,12 @@ html, body {
     font-size: 1.3em;
 }
 
+.leaflet-control-geocoder-icon {
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.2 13l3.4 6.6c.6 1.1 2.5-.4 2-1.2l-4-6.2z'/%3E%3Ccircle cx='10.8' cy='8.9' r='3.9' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") !important;
+}
+
 #map {
-    width: 100%;
     height: 40vh
 }
 
@@ -24,8 +28,7 @@ html, body {
         padding-right: 15px;
     }
 
-    #map {
-        width: 100%;
-        height: 100vh
+    #map, #filter {
+        height: 96vh;
     }
 }
