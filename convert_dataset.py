@@ -68,7 +68,7 @@ def get_geolocation(addr):
 
         try:
             loc['coords'] = [locations.latitude, locations.longitude]
-        except (TypeError, IndexError):
+        except (TypeError, AttributeError, IndexError):
             pass
     except Exception as e:
         print(e)
