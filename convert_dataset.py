@@ -62,6 +62,9 @@ def get_geolocation(addr):
     }
 
     try:
+        if not hasattr(locations, 'raw'):
+            return loc
+
         for component in locations.raw['address_components']:
             if 'postal_code' in component['types']:
                 loc['postal_code'] = component['short_name']
