@@ -57,7 +57,7 @@ def get_geolocation(addr):
     locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
     loc = {
-        'coords': None,
+        'coords': [],
         'postal_code': None
     }
 
@@ -68,7 +68,7 @@ def get_geolocation(addr):
 
         try:
             loc['coords'] = [locations.latitude, locations.longitude]
-        except IndexError as e:
+        except (TypeError, IndexError):
             pass
     except Exception as e:
         print(e)
