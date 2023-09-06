@@ -44,7 +44,7 @@ def main(filepath):
             'description': o['description'],
             'reasons': o['reasons'] if 'reasons' in o else '',
             'postal_code': o['postal_code'],
-            'scope': o['scope'],
+            'scope': o['scope'] if 'scope' in o else [],
             'address': o['address']
         }
 
