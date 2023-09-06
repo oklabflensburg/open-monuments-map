@@ -25,15 +25,24 @@ except Exception as e:
 
 
 def request_json(url, data_directory):
-    filename = url.split('/')[-1]
-    filepath = f'{data_directory}/{filename}'
+    file_object = dict()
+
+    filename = ''.join(url.split('/')[-1].split('.')[:-1])
+    extension = url.split('/')[-1].split('.')[-1]
+    target = f'{data_directory}/{filename}.{extension}'
+
+    file_object.update({
+        'name': filename,
+        'extension': extension,
+        'target': target
+    })
 
     r = httpx.get(url, timeout=20)
 
-    with open(filepath, 'wb') as f:
+    with open(file_object['target'], 'wb') as f:
         f.write(r.content)
 
-    return filename
+    return file_object
 
 
 def get_data(filename):
@@ -105,12 +114,10 @@ def defuck(line):
 @click.command()
 @click.argument('url')
 def main(url):
-    filename = request_json(url, data_directory)
-    filepath = f'{data_directory}/{filename}'
-    result_filename = filename.split('.')[0]
-    result_filepath = f'{data_directory}/{result_filename}-denkmalschutz.json'
+    file_object = request_json(url, data_directory)
+    dest = f'{data_directory}/{file_object["name"]}-denkmalschutz.{file_object["extension"]}'
 
-    d = get_data(filepath)
+    d = get_data(file_object['target'])
     aa = []
 
     for i in d:
@@ -133,7 +140,7 @@ def main(url):
 
                 o = i.copy()
                 
-                loc = get_geolocation([a, o['Kreis']])
+                loc = get_geolocation([a, o['Gemeinde']])
 
                 if 'Objektnummer' in o:
                     o['object_id'] = o.pop('Objektnummer')
@@ -173,7 +180,7 @@ def main(url):
                 aa.append(o)
             break
 
-    with open(result_filepath, 'w') as f:
+    with open(dest, 'w') as f:
         json.dump(aa, f)
 
 
