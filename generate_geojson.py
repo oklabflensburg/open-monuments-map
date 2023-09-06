@@ -1,19 +1,24 @@
 #!./venv/bin/python
 
 import json
+import click
 
 from geojson import FeatureCollection, Feature, Point
 
 
-def get_data():
-    with open('flensburg_denkmalschutz.json', 'r') as f:
+def get_data(filepath):
+    with open(filepath, 'r') as f:
         d = json.loads(f.read())
     
     return d
 
 
-def main():
-    d = get_data()
+@click.command()
+@click.argument('filepath')
+def main(filepath):
+    target = filepath.split('.')[0]
+
+    d = get_data(filepath)
     fc = []
 
     crs = {
@@ -30,7 +35,7 @@ def main():
         point = Point((float(o['coords'][1]), float(o['coords'][0])))
             
         properties = {
-            'object': o['object'],
+            'object_id': o['object_id'],
             'designation': o['designation'],
             'type': o['type'],
             'authority': o['authority'],
@@ -47,7 +52,7 @@ def main():
 
     c = FeatureCollection(fc, crs=crs)
 
-    with open('flensburg_denkmalschutz.geojson', 'w') as f:
+    with open(f'{target}.geojson', 'w') as f:
         json.dump(c, f)
 
 
