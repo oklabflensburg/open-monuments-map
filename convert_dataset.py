@@ -3,28 +3,48 @@
 import os
 import re
 import json
-import requests
+import click
+import httpx
 
 from geopy.geocoders import GoogleV3
-from os.path import join, dirname
 from dotenv import load_dotenv
+from pathlib import Path
 
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+current_directory = Path('.')
+data_directory = Path('data')
 
-API_KEY = os.environ.get('API_KEY')
+env_path = f'{current_directory}/.env'
+load_dotenv(dotenv_path=env_path)
 
 
-def get_data():
-    with open('stadt-flensburg.json', 'r') as f:
+try:
+    api_key = os.getenv('API_KEY')
+except Exception as e:
+    raise(e)
+
+
+def request_json(url, data_directory):
+    filename = url.split('/')[-1]
+    filepath = f'{data_directory}/{filename}'
+
+    r = httpx.get(url, timeout=20)
+
+    with open(filepath, 'wb') as f:
+        f.write(r.content)
+
+    return filename
+
+
+def get_data(filename):
+    with open(filename, 'r') as f:
         d = json.loads(f.read())
 
     return d
 
 
 def get_geolocation(addr):
-    g = GoogleV3(api_key=API_KEY)
+    g = GoogleV3(api_key=api_key)
     locations = g.geocode(query=f'{addr[0].replace(" ", "+")}+{addr[1]}', exactly_one=True)
 
     loc = {
@@ -82,8 +102,15 @@ def defuck(line):
     return tt
 
 
-def main():
-    d = get_data()
+@click.command()
+@click.argument('url')
+def main(url):
+    filename = request_json(url, data_directory)
+    filepath = f'{data_directory}/{filename}'
+    result_filename = filename.split('.')[0]
+    result_filepath = f'{data_directory}/{result_filename}-denkmalschutz.json'
+
+    d = get_data(filepath)
     aa = []
 
     for i in d:
@@ -109,7 +136,7 @@ def main():
                 loc = get_geolocation([a, o['Kreis']])
 
                 if 'Objektnummer' in o:
-                    o['object'] = o.pop('Objektnummer')
+                    o['object_id'] = o.pop('Objektnummer')
 
                 if 'Bezeichnung' in o:
                     o['designation'] = o.pop('Bezeichnung')
@@ -146,7 +173,7 @@ def main():
                 aa.append(o)
             break
 
-    with open('flensburg_denkmalschutz.json', 'w') as f:
+    with open(result_filepath, 'w') as f:
         json.dump(aa, f)
 
 
