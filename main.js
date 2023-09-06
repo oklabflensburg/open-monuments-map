@@ -1,4 +1,4 @@
-fetch('./flensburg_denkmalschutz.geojson', {
+fetch('/data/stadt-flensburg-denkmalschutz.geojson', {
     method: 'GET'
 })
 .then((response) => {
