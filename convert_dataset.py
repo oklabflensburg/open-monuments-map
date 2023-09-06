@@ -89,6 +89,9 @@ def defuck(line):
 
     for j in x:
         b = re.search(j, line)
+
+        if b is None:
+            continue
         
         if len(pp) > 0:
             pp.append(b.start())
