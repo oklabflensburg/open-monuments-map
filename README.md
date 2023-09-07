@@ -67,6 +67,20 @@ And last but not least, insert data into tables
 ```
 
 
+## HOW TO USE
+
+
+To query a boundary of an monument call this script with an `object_id`
+
+```
+./query_boundaries.py 4677
+```
+
+```
+{"crs": {"properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}, "type": "name"}, "features": [{"geometry": {"coordinates": [[[10.473906, 54.268938], [10.474305, 54.268966], [10.474323, 54.268879], [10.473924, 54.26885], [10.473906, 54.268938]]], "type": "Polygon"}, "properties": {"object_id": "4677"}, "type": "Feature"}], "type": "FeatureCollection"}
+```
+
+
 ## LICENSE
 
 [CC0-1.0](LICENSE)
