@@ -14,3 +14,59 @@ Die Daten der Kulturdenkmale haben wir über [Landesamt für Denkmalpflege](http
 ## Interaktive Karte
 
 Diese interaktive webbasierte Karte ist auf Basis der Daten des Landesamtes für Denkmalpflege und der Bilddaten des Open Data Repositories der Christian-Albrechts-Universität zu Kiel entstanden. Nach einigen Stunden der Betrachtung der Datensätze konnten wir die Daten lesen und mittels einem selbst geschriebenen Python Skript in ein maschinenlesbares offenes Format nach der Spezifikation [RFC 7946](https://geojson.org/) umwandeln. Wir nutzen die [OpenSteetMap](https://www.openstreetmap.de/) Karte als Basis für die Darstellungen der Marker. Wir mussten die gegebenen Daten bereinigen und Dupliketen aussortieren und die jeweilige Geografische Position mittels der [Google Maps API](https://geopy.readthedocs.io/en/stable/index.html?highlight=GoogleV3#googlev3) in Python aus den vorhandenen Daten wie der Straße und Hausnummer und der Stadt extrahieren. Unser Ziel ist es Interessierten eine Nutzung der offenen Daten mit wenig Arbeit und einem Mehrwert anzubieten.
+
+
+## Setup
+
+
+Follow these steps to run on an dev enviroment
+
+```
+sudo apt install git virtualenv python3 python3-pip postgresql-15 postgresql-15-postgis-3 postgis
+```
+
+
+Clone repository `open-monuments-map` and move in
+
+```
+git clone https://github.com/oklabflensburg/open-monuments-map.git
+cd open-monuments-map
+```
+
+
+Create dot `.env` file and add the following vars with `vim .env`
+
+```
+DB_PASS=postgres
+DB_HOST=localhost
+DB_USER=postgres
+DB_NAME=postgres
+DB_PORT=5432
+```
+
+Finally you can run sql statements inside `open-monuments-map` directory
+
+```sql
+psql -U postgres -h localhost -d postgres -p 5432 < data/flensburg_denkmalschutz.sql
+```
+
+
+Next initialize python virtualenv and install the dependencies
+
+```
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+
+And last but not least, insert data into tables
+
+```python
+./insert_boundaries.py data/monument_boundaries.geojson
+```
+
+
+## LICENSE
+
+[CC0-1.0](LICENSE)
