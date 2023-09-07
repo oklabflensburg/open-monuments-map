@@ -7,10 +7,9 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 DROP TABLE IF EXISTS monument_boundary CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_boundary (
-  id SERIAL,
-  object_id INT NOT NULL,
-  geometry geometry,
-  PRIMARY KEY(id)
+  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  object_id INT,
+  geometry geometry
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS monument_boundary_object_id_idx ON monument_boundary (object_id);
@@ -21,21 +20,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS monument_boundary_object_id_idx ON monument_bo
 DROP TABLE IF EXISTS monuments CASCADE;
 
 CREATE TABLE IF NOT EXISTS monuments (
-  id SERIAL,
+  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   object_id INT,
-  scope_id INT,
-  reason_id INT,
-  model VARCHAR,
   address VARCHAR,
-  authority VARCHAR,
-  district VARCHAR,
   image_url VARCHAR,
   designation VARCHAR,
+  description VARCHAR,
+  administrative VARCHAR,
+  monument_type VARCHAR,
   postal_code VARCHAR,
-  description TEXT,
-  geometry geometry,
-  PRIMARY KEY(id),
-  FOREIGN KEY(object_id) REFERENCES monument_boundary(object_id)
+  place_name VARCHAR,
+  geometry geometry
 );
 
 CREATE INDEX IF NOT EXISTS monuments_object_id_idx ON monuments (object_id);
@@ -46,9 +41,8 @@ CREATE INDEX IF NOT EXISTS monuments_object_id_idx ON monuments (object_id);
 DROP TABLE IF EXISTS monument_scope CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_scope (
-  id SERIAL,
-  label VARCHAR,
-  PRIMARY KEY(id)
+  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  label VARCHAR
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS monuments_scope_label_idx ON monument_scope (label);
@@ -71,9 +65,8 @@ CREATE TABLE IF NOT EXISTS monument_x_scope (
 DROP TABLE IF EXISTS monument_reason CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_reason (
-  id SERIAL,
-  label VARCHAR,
-  PRIMARY KEY(id)
+  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  label VARCHAR
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS monuments_reason_label_idx ON monument_reason (label);
