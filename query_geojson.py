@@ -27,11 +27,15 @@ except Exception as e:
 
 
 def get_boundaries(cur, gen):
-    sql = "SELECT ST_ASGeoJson(ST_Buffer(ST_GeogFromWKB(wkb_geometry), 350, 'endcap=round join=round')) as geojson from vg250 where gen = %s"
+    sql = """
+        SELECT ST_ASGeoJson(ST_Buffer(ST_GeogFromWKB(
+            wkb_geometry), 350, 'endcap=round join=round')
+        ) as geojson FROM vg250 WHERE LOWER(gen) = %s
+    """
 
     boundaries = []
 
-    cur.execute(sql, (gen,))
+    cur.execute(sql, (gen.lower(),))
     rows = cur.fetchall()
 
     return rows
