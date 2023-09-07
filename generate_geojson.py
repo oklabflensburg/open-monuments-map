@@ -42,9 +42,9 @@ def main(filepath):
             'district': o['district'],
             'url': o['url'] if 'url' in o else '',
             'description': o['description'],
-            'reasons': o['reasons'] if 'reasons' in o else '',
-            'postal_code': o['postal_code'],
+            'reasons': o['reasons'] if 'reasons' in o else [],
             'scope': o['scope'] if 'scope' in o else [],
+            'postal_code': o['postal_code'],
             'address': o['address']
         }
 
