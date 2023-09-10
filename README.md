@@ -108,22 +108,29 @@ To query an administrative geometry with a buffer by 350 meters
 
 ```sql
 SELECT
-    m.object_id,
-    m.place_name,
-    m.address,
-    m.postal_code,
-    m.image_url,
-    m.designation,
-    m.description,
-    m.monument_type,
-    STRING_AGG(mr.label, ', ') AS reasons,
-    ST_ASGeoJson(ST_GeomFromEWKB(m.geometry)) AS geometry
+    json_build_object(
+        'properties', json_build_object(
+        'object_id', m.object_id,
+        'place_name', m.place_name,
+        'address', m.address,
+        'postal_code', m.postal_code,
+        'image_url', m.image_url,
+        'designation', m.designation,
+        'description', m.description,
+        'monument_type', m.monument_type,
+        'reasons', string_agg(mr.label, ', ')
+    ),
+    'geometry', ST_ASGeoJson(ST_GeomFromEWKB(m.geometry))
+)
 FROM
     monuments AS m
 LEFT JOIN
     monument_x_reason AS mxr ON mxr.monument_id = m.id
 LEFT JOIN
     monument_reason AS mr ON mxr.reason_id = mr.id
+JOIN
+    vg250 AS v ON ST_Within(ST_GeomFromEWKB(m.geometry),
+    ST_GeomFromEWKB(v.wkb_geometry)) AND LOWER(v.gen) = %s
 GROUP BY
     m.object_id,
     m.place_name,
