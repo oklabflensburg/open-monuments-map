@@ -9,10 +9,11 @@ DROP TABLE IF EXISTS monument_boundary CASCADE;
 CREATE TABLE IF NOT EXISTS monument_boundary (
   id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   object_id INT,
-  geometry geometry
+  wkb_geometry geometry
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS monument_boundary_object_id_idx ON monument_boundary (object_id);
+CREATE INDEX IF NOT EXISTS monument_boundary_wkb_geometry_idx ON monument_boundary USING GIST (wkb_geometry);
 
 
 
@@ -30,10 +31,11 @@ CREATE TABLE IF NOT EXISTS monuments (
   monument_type VARCHAR,
   postal_code VARCHAR,
   place_name VARCHAR,
-  geometry geometry
+  wkb_geometry geometry
 );
 
 CREATE INDEX IF NOT EXISTS monuments_object_id_idx ON monuments (object_id);
+CREATE INDEX IF NOT EXISTS monuments_wkb_geometry_idx ON monuments USING GIST (wkb_geometry);
 
 
 
