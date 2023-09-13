@@ -24,6 +24,7 @@ try:
         host = os.getenv('DB_HOST'),
         port = os.getenv('DB_PORT')
     )
+    conn.autocommit = True
 except Exception as e:
     print(e)
 
@@ -62,8 +63,6 @@ def insert_object(cur, object_id, geometry):
         cur.execute(sql, (object_id, wkb_geometry))
     except UniqueViolation as e:
         print(e)
-
-    conn.commit()
 
 
 if __name__ == '__main__':
