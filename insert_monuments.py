@@ -85,7 +85,7 @@ def insert_object(cur, properties, geometry):
 
     sql = '''
         INSERT INTO monuments (object_id, monument_type, administrative, place_name, image_url, 
-        description, designation, postal_code, address, geometry)
+        description, designation, postal_code, address, wkb_geometry)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
     '''
 
