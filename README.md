@@ -25,7 +25,7 @@ Diese interaktive webbasierte Karte ist auf Basis der Daten des Landesamtes für
 Follow these steps to run on an dev enviroment
 
 ```
-sudo apt install git virtualenv python3 python3-pip postgresql-15 postgresql-15-postgis-3 postgis
+sudo apt install git git-lfs virtualenv python3 python3-pip postgresql-15 postgresql-15-postgis-3 postgis
 ```
 
 
@@ -47,6 +47,14 @@ DB_NAME=postgres
 DB_PORT=5432
 ```
 
+
+If you want to update the repository use these commands
+
+```
+git pull
+git lfs pull
+git lfs install
+```
 
 Finally you can run sql statements inside `open-monuments-map` directory
 
