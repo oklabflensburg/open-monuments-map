@@ -99,9 +99,19 @@ function addDistrictsLayer(data) {
 
 
 function marker(data) {
+    let previousSelectedMarker = null
     let markers = L.markerClusterGroup({
         zoomToBoundsOnClick: true,
         disableClusteringAtZoom: 18
+    })
+
+    const defaultIcon = L.icon({
+        iconUrl: '/static/marker-icon-blue.png',
+        shadowUrl: '/static/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        tooltipAnchor: [2, -41],
+        shadowSize: [45, 41]
     })
 
     const geojsonGroup = L.geoJSON(data, {
@@ -148,22 +158,31 @@ function marker(data) {
         pointToLayer: function (feature, latlng) {
             const label = String(feature.properties.address)
 
-            const customIcon = L.icon({
-                iconUrl: '/static/marker-icon-blue.png',
-                shadowUrl: '/static/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                tooltipAnchor: [2, -41],
-                shadowSize: [45, 41]
-            })
-
-            return L.marker(latlng, {icon: customIcon}).bindTooltip(label, {
+            return L.marker(latlng, {icon: defaultIcon}).bindTooltip(label, {
                 permanent: false,
                 direction: 'top'
             }).openTooltip()
         }
     })
 
+
+    markers.on('click', function (a) {
+        if (previousSelectedMarker !== null) {
+            previousSelectedMarker.setIcon(defaultIcon)
+        }
+        
+        const selectedIcon = L.icon({
+            iconUrl: '/static/marker-icon-green.png',
+            shadowUrl: '/static/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            tooltipAnchor: [2, -41],
+            shadowSize: [45, 41]
+        })
+
+        a.layer.setIcon(selectedIcon)
+        previousSelectedMarker = a.layer
+    })
 
     markers.addLayer(geojsonGroup)
     map.addLayer(markers)
