@@ -1,4 +1,4 @@
-fetch('/data/stadt-flensburg-denkmalschutz.geojson', {
+fetch('./data/stadt-flensburg-denkmalschutz.geojson', {
     method: 'GET'
 })
 .then((response) => {
@@ -12,7 +12,7 @@ fetch('/data/stadt-flensburg-denkmalschutz.geojson', {
 })
 
 
-fetch('/data/flensburg_stadtteile.geojson', {
+fetch('./data/flensburg_stadtteile.geojson', {
     method: 'GET'
 })
 .then((response) => {
@@ -106,8 +106,8 @@ function marker(data) {
     })
 
     const defaultIcon = L.icon({
-        iconUrl: '/static/marker-icon-blue.png',
-        shadowUrl: '/static/marker-shadow.png',
+        iconUrl: './static/marker-icon-blue.png',
+        shadowUrl: './static/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         tooltipAnchor: [2, -41],
@@ -170,10 +170,10 @@ function marker(data) {
         if (previousSelectedMarker !== null) {
             previousSelectedMarker.setIcon(defaultIcon)
         }
-        
+
         const selectedIcon = L.icon({
-            iconUrl: '/static/marker-icon-green.png',
-            shadowUrl: '/static/marker-shadow.png',
+            iconUrl: './static/marker-icon-green.png',
+            shadowUrl: './static/marker-shadow.png',
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             tooltipAnchor: [2, -41],
