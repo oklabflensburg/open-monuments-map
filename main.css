@@ -19,6 +19,76 @@ html, body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.2 13l3.4 6.6c.6 1.1 2.5-.4 2-1.2l-4-6.2z'/%3E%3Ccircle cx='10.8' cy='8.9' r='3.9' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") !important;
 }
 
+.marker-cluster-small {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+.marker-cluster-small div {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+.marker-cluster-medium {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+.marker-cluster-medium div {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+.marker-cluster-large {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+.marker-cluster-large div {
+	background-color: rgba(64, 64, 65, .7);
+}
+
+	/* IE 6-8 fallback colors */
+.leaflet-oldie .marker-cluster-small {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.leaflet-oldie .marker-cluster-small div {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.leaflet-oldie .marker-cluster-medium {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.leaflet-oldie .marker-cluster-medium div {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.leaflet-oldie .marker-cluster-large {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.leaflet-oldie .marker-cluster-large div {
+	background-color: rgb(64, 64, 65, .7);
+}
+
+.marker-cluster {
+	background-clip: padding-box;
+	border-radius: 20px;
+}
+
+.marker-cluster div {
+	width: 30px;
+	height: 30px;
+	margin-left: 5px;
+	margin-top: 5px;
+
+	text-align: center;
+	border-radius: 15px;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.marker-cluster span {
+  color: #fff;
+	line-height: 30px;
+}
+
 #map {
     height: 40vh
 }

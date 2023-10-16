@@ -53,10 +53,16 @@ const layerStyle = {
 
 const map = L.map('map').setView([54.7836, 9.4321], 13)
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Request=GetCapabilities', {
+  layers: 'de_basemapde_web_raster_grau',
+  maxZoom: 19,
+  attribution: '<a href="https://www.bkg.bund.de">GeoBasis-DE BKG</a> | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
+}).addTo(map);
+
+/*L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map)
+}).addTo(map)*/
 
 let geocoder = L.Control.Geocoder.nominatim()
 
@@ -122,7 +128,7 @@ function marker(data) {
                     left: 0
                 })
 
-                map.setView(e.latlng, 19)
+                map.setView(e.latlng, 18)
 
                 let scope = e.target.feature.properties.scope
                 let reasons = e.target.feature.properties.reasons
