@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 
-env_path = Path('.')/'.env'
+env_path = Path('..')/'.env'
 load_dotenv(dotenv_path=env_path)
 
 
@@ -57,7 +57,7 @@ def insert_object(cur, object_id, geometry):
         g = MultiPolygon(shape(geometry))
 
     wkb_geometry = wkb.dumps(g, hex=True, srid=4326)
-    sql = 'INSERT INTO monument_boundary (object_id, wkb_geometry) VALUES (%s, %s)'
+    sql = 'INSERT INTO monument_boundaries (object_id, wkb_geometry) VALUES (%s, %s)'
 
     try:
         cur.execute(sql, (object_id, wkb_geometry))

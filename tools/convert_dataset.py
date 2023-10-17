@@ -11,10 +11,9 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 
-current_directory = Path('.')
-data_directory = Path('data')
+data_directory = Path('../data')
 
-env_path = f'{current_directory}/.env'
+env_path = Path('..')/'.env'
 load_dotenv(dotenv_path=env_path)
 
 

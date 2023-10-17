@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 
-env_path = Path('.')/'.env'
+env_path = Path('..')/'.env'
 load_dotenv(dotenv_path=env_path)
 
 
@@ -26,20 +26,24 @@ except Exception as e:
     print(e)
 
 
-def get_boundaries(cur, object_id):
-    sql = 'SELECT ST_AsGeoJson(wkb_geometry) FROM monument_boundary WHERE object_id = %s'
+def get_boundaries(cur, gen):
+    sql = """
+        SELECT ST_ASGeoJson(ST_Buffer(ST_GeogFromWKB(
+            wkb_geometry), 350, 'endcap=round join=round')
+        ) as geojson FROM vg250 WHERE LOWER(gen) = %s
+    """
 
     boundaries = []
 
-    cur.execute(sql, (object_id,))
+    cur.execute(sql, (gen.lower(),))
     rows = cur.fetchall()
 
     return rows
 
 
 @click.command()
-@click.argument('object_id')
-def main(object_id):
+@click.argument('gen')
+def main(gen):
     cur = conn.cursor()
 
     fc = []
@@ -51,8 +55,8 @@ def main(object_id):
         }
     }
 
-    boundaries = get_boundaries(cur, object_id)
-    properties = {'object_id': object_id}
+    boundaries = get_boundaries(cur, gen)
+    properties = {'gen': gen}
 
     for boundary in boundaries:
         row = json.loads(boundary[0])
