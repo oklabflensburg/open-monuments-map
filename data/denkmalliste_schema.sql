@@ -1,23 +1,25 @@
-/* POSTGIS ERWEITERUNG LADEN */
+-- POSTGIS ERWEITERUNG LADEN
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 
+-- HILFSTABELLE GEOMETRIEN DENKMALLISTE
+DROP TABLE IF EXISTS monument_boundaries CASCADE;
 
-/* TABELLE POLYGON DENKMALOBJEKT */
-DROP TABLE IF EXISTS monument_boundary CASCADE;
-
-CREATE TABLE IF NOT EXISTS monument_boundary (
-  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  object_id INT,
-  wkb_geometry geometry
+CREATE TABLE IF NOT EXISTS monument_boundaries (
+  id SERIAL,
+  object_id VARCHAR,
+  wkb_geometry GEOMETRY(GEOMETRY, 4326),
+  PRIMARY KEY(id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS monument_boundary_object_id_idx ON monument_boundary (object_id);
-CREATE INDEX IF NOT EXISTS monument_boundary_wkb_geometry_idx ON monument_boundary USING GIST (wkb_geometry);
+
+-- CREATE INDEX
+CREATE UNIQUE INDEX IF NOT EXISTS monument_boundaries_id_idx ON monument_boundaries (id);
+CREATE UNIQUE INDEX IF NOT EXISTS monument_boundaries_object_id_idx ON monument_boundaries (object_id);
+CREATE INDEX IF NOT EXISTS monument_boundaries_wkb_geometry_geom_idx ON monument_boundaries USING gist (wkb_geometry);
 
 
-
-/* TABELLE DENKMALOBJEKTE */
+-- TABELLE DENKMALOBJEKTE
 DROP TABLE IF EXISTS monuments CASCADE;
 
 CREATE TABLE IF NOT EXISTS monuments (
@@ -31,7 +33,7 @@ CREATE TABLE IF NOT EXISTS monuments (
   monument_type VARCHAR,
   postal_code VARCHAR,
   place_name VARCHAR,
-  wkb_geometry geometry
+  wkb_geometry GEOMETRY(GEOMETRY, 4326)
 );
 
 CREATE INDEX IF NOT EXISTS monuments_object_id_idx ON monuments (object_id);
@@ -39,7 +41,7 @@ CREATE INDEX IF NOT EXISTS monuments_wkb_geometry_idx ON monuments USING GIST (w
 
 
 
-/* HILFSTABELLE SCHUTZUMFANG */
+-- HILFSTABELLE SCHUTZUMFANG
 DROP TABLE IF EXISTS monument_scope CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_scope (
@@ -51,7 +53,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS monuments_scope_label_idx ON monument_scope (l
 
 
 
-/* TABELLE DENKMALOBJEKT SCHUTZUMFANG */
+-- TABELLE DENKMALOBJEKT SCHUTZUMFANG
 DROP TABLE IF EXISTS monument_x_scope CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_x_scope (
@@ -63,7 +65,7 @@ CREATE TABLE IF NOT EXISTS monument_x_scope (
 
 
 
-/* HILFSTABELLE BEGRÜNDUNG */
+-- HILFSTABELLE BEGRÜNDUNG
 DROP TABLE IF EXISTS monument_reason CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_reason (
@@ -75,7 +77,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS monuments_reason_label_idx ON monument_reason 
 
 
 
-/* TABELLE DENKMALOBJEKT BEGRÜNDUNG */
+-- TABELLE DENKMALOBJEKT BEGRÜNDUNG
 DROP TABLE IF EXISTS monument_x_reason CASCADE;
 
 CREATE TABLE IF NOT EXISTS monument_x_reason (
