@@ -2,23 +2,49 @@
 
 import json
 import click
+import re
 
 from geojson import FeatureCollection, Feature, Point
+from pathlib import Path
 
 
-def get_data(filepath):
-    with open(filepath, 'r') as f:
+def get_data(src):
+    with open(src, 'r') as f:
         d = json.loads(f.read())
     
     return d
 
 
-@click.command()
-@click.argument('filepath')
-def main(filepath):
-    target = filepath.split('.')[0]
+def get_slug(designation, administrative, address):
+    admin = administrative.split(', ')
 
-    d = get_data(filepath)
+    if len(admin) > 0:
+        admin.sort(reverse=True)
+
+    title = re.sub('[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
+    city = re.sub('[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', '-'.join(admin))
+    addr = re.sub('[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', address)
+
+    street = re.sub('\d.*', '', address)
+    streets = list(set(street.split()))
+
+    for item in streets:
+        title = title.replace(item.strip(), '')
+
+    slug = f'{title} {addr} {city}'.lower().strip()
+    slug = re.sub(r'\s+', ' ', slug).replace(' ', '-')
+
+    return slug
+
+
+@click.command()
+@click.argument('src')
+def main(src):
+    filename = Path(src).stem
+    parent = str(Path(src).parent)
+    dest = Path(f'{parent}/{filename}.geojson')
+
+    d = get_data(src)
     fc = []
 
     crs = {
@@ -33,14 +59,15 @@ def main(filepath):
             continue
 
         point = Point((float(o['coords'][1]), float(o['coords'][0])))
-            
+
         properties = {
+            'slug': get_slug(o['designation'], o['authority'], o['address']),
             'object_id': o['object_id'],
             'designation': o['designation'],
-            'type': o['type'],
-            'authority': o['authority'],
-            'district': o['district'],
-            'url': o['url'] if 'url' in o else '',
+            'monument_type': o['type'],
+            'administrative': o['authority'],
+            'place_name': o['district'],
+            'image_url': o['url'] if 'url' in o else '',
             'description': o['description'],
             'reasons': o['reasons'] if 'reasons' in o else [],
             'scope': o['scope'] if 'scope' in o else [],
@@ -52,7 +79,7 @@ def main(filepath):
 
     c = FeatureCollection(fc, crs=crs)
 
-    with open(f'{target}.geojson', 'w') as f:
+    with open(dest, 'w') as f:
         json.dump(c, f)
 
 

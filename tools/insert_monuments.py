@@ -69,29 +69,30 @@ def insert_reason(cur, monument_id, reason_label):
 
 def insert_object(cur, properties, geometry):
     object_id = properties['object_id']
-    monument_type = properties['type']
-    administrative = properties['authority']
+    monument_type = properties['monument_type']
+    administrative = properties['administrative']
     description = properties['description']
     designation = properties['designation']
     postal_code = properties['postal_code']
-    place_name = properties['district']
+    place_name = properties['place_name']
+    image_url = properties['image_url']
     address = properties['address']
     reasons = properties['reasons']
-    image_url = properties['url']
     scope = properties['scope']
+    slug = properties['slug']
 
     g = Point(shape(geometry))
     wkb_geometry = wkb.dumps(g, hex=True, srid=4326)
 
     sql = '''
         INSERT INTO monuments (object_id, monument_type, administrative, place_name, image_url, 
-        description, designation, postal_code, address, wkb_geometry)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
+        description, designation, postal_code, address, slug, wkb_geometry)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
     '''
 
     try:
         cur.execute(sql, (object_id, monument_type, administrative, place_name,
-            image_url, description, designation, postal_code, address, wkb_geometry))
+            image_url, description, designation, postal_code, address, slug, wkb_geometry))
         monument_id = cur.fetchone()[0]
     except UniqueViolation as e:
         return

@@ -1,3 +1,7 @@
+window.addEventListener("popstate", (event) => {
+  console.log(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+})
+
 fetch('./data/stadt-flensburg-denkmalschutz.geojson', {
     method: 'GET'
 })
@@ -132,7 +136,7 @@ function marker(data) {
 
                 let scope = e.target.feature.properties.scope
                 let reasons = e.target.feature.properties.reasons
-                let url = e.target.feature.properties.url
+                let image_url = e.target.feature.properties.image_url
                 let image = ''
 
                 if (Array.isArray(scope)) {
@@ -143,22 +147,26 @@ function marker(data) {
                     reasons = reasons.join(', ')
                 }
 
-                if (url.length > 0) {
-                    image = '<img class="mt-1 mb-3" src="' + url + '" alt="Denkmalschutz Objekt">'
+                if (image_url.length > 0) {
+                    image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
                 }
 
                 let address = e.target.feature.properties.address
                 let postal_code = e.target.feature.properties.postal_code
-                let district = e.target.feature.properties.district.slice(6)
+                let district = e.target.feature.properties.place_name.slice(6)
+                let designation = e.target.feature.properties.designation
+                let slug = e.target.feature.properties.slug
 
                 document.getElementById('details').classList.remove('hidden')
                 document.getElementById('address').innerHTML = address + '<br>' + postal_code + ' ' + district
-                document.getElementById('type').innerHTML = e.target.feature.properties.type
+                document.getElementById('monument_type').innerHTML = e.target.feature.properties.monument_type
                 document.getElementById('designation').innerHTML = e.target.feature.properties.designation
                 document.getElementById('description').innerHTML = e.target.feature.properties.description
                 document.getElementById('reasons').innerHTML = reasons
                 document.getElementById('scope').innerHTML = scope
                 document.getElementById('img').innerHTML = image
+
+                history.pushState({ page: slug }, designation, slug)
             })
         },
         pointToLayer: function (feature, latlng) {
