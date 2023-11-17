@@ -172,7 +172,7 @@ function marker(data) {
     const geojsonGroup = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
             const slug = String(feature.properties.slug)
-            const path = decodeURIComponent(window.location.path)
+            const path = decodeURIComponent(window.location.pathname)
 
             if (slug === path.slice(1)) {
                 layer.setIcon(selectedIcon)
