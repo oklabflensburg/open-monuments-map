@@ -69,6 +69,8 @@ L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Reques
 }).addTo(map)*/
 
 let geocoder = L.Control.Geocoder.nominatim()
+let previousSelectedMarker = null
+
 
 if (typeof URLSearchParams !== 'undefined' && location.search) {
     // parse /?geocoder=nominatim from URL
@@ -163,7 +165,6 @@ const selectedIcon = L.icon({
 
 
 function marker(data) {
-    let previousSelectedMarker = null
     let markers = L.markerClusterGroup({
         zoomToBoundsOnClick: true,
         disableClusteringAtZoom: 18
