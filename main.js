@@ -1,5 +1,5 @@
 window.addEventListener("popstate", (event) => {
-  console.log(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+    console.debug(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
 })
 
 fetch('./data/stadt-flensburg-denkmalschutz.geojson', {
@@ -108,6 +108,60 @@ function addDistrictsLayer(data) {
 }
 
 
+function renderFeatureDetails(feature) {
+    let scope = feature.properties.scope
+    let reasons = feature.properties.reasons
+    let image_url = feature.properties.image_url
+    let image = ''
+
+    if (Array.isArray(scope)) {
+        scope = scope.join(', ')
+    }
+
+    if (Array.isArray(reasons)) {
+        reasons = reasons.join(', ')
+    }
+
+    if (image_url.length > 0) {
+        image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
+    }
+
+    let address = feature.properties.address
+    let postal_code = feature.properties.postal_code
+    let district = feature.properties.place_name.slice(6)
+    let designation = feature.properties.designation
+
+    document.getElementById('details').classList.remove('hidden')
+    document.getElementById('address').innerHTML = address + '<br>' + postal_code + ' ' + district
+    document.getElementById('monument_type').innerHTML = feature.properties.monument_type
+    document.getElementById('designation').innerHTML = feature.properties.designation
+    document.getElementById('description').innerHTML = feature.properties.description
+    document.getElementById('reasons').innerHTML = reasons
+    document.getElementById('scope').innerHTML = scope
+    document.getElementById('img').innerHTML = image
+}
+
+
+const defaultIcon = L.icon({
+    iconUrl: './static/marker-icon-blue.png',
+    shadowUrl: './static/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    tooltipAnchor: [2, -41],
+    shadowSize: [45, 41]
+})
+
+
+const selectedIcon = L.icon({
+    iconUrl: './static/marker-icon-green.png',
+    shadowUrl: './static/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    tooltipAnchor: [2, -41],
+    shadowSize: [45, 41]
+})
+
+
 function marker(data) {
     let previousSelectedMarker = null
     let markers = L.markerClusterGroup({
@@ -115,57 +169,27 @@ function marker(data) {
         disableClusteringAtZoom: 18
     })
 
-    const defaultIcon = L.icon({
-        iconUrl: './static/marker-icon-blue.png',
-        shadowUrl: './static/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        tooltipAnchor: [2, -41],
-        shadowSize: [45, 41]
-    })
-
     const geojsonGroup = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
+            const slug = String(feature.properties.slug)
+            const path = decodeURIComponent(window.location.path)
+
+            if (slug === path) {
+                layer.setIcon(selectedIcon)
+                renderFeatureDetails(feature)
+                map.setView(layer._latlng, 18)
+            }
+
             layer.on('click', function (e) {
                 document.getElementById('filter').scrollTo({
                     top: 0,
                     left: 0
                 })
 
+                const slug = e.target.feature.properties.slug
+
                 map.setView(e.latlng, 18)
-
-                let scope = e.target.feature.properties.scope
-                let reasons = e.target.feature.properties.reasons
-                let image_url = e.target.feature.properties.image_url
-                let image = ''
-
-                if (Array.isArray(scope)) {
-                    scope = scope.join(', ')
-                }
-
-                if (Array.isArray(reasons)) {
-                    reasons = reasons.join(', ')
-                }
-
-                if (image_url.length > 0) {
-                    image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
-                }
-
-                let address = e.target.feature.properties.address
-                let postal_code = e.target.feature.properties.postal_code
-                let district = e.target.feature.properties.place_name.slice(6)
-                let designation = e.target.feature.properties.designation
-                let slug = e.target.feature.properties.slug
-
-                document.getElementById('details').classList.remove('hidden')
-                document.getElementById('address').innerHTML = address + '<br>' + postal_code + ' ' + district
-                document.getElementById('monument_type').innerHTML = e.target.feature.properties.monument_type
-                document.getElementById('designation').innerHTML = e.target.feature.properties.designation
-                document.getElementById('description').innerHTML = e.target.feature.properties.description
-                document.getElementById('reasons').innerHTML = reasons
-                document.getElementById('scope').innerHTML = scope
-                document.getElementById('img').innerHTML = image
-
+                renderFeatureDetails(e.target.feature)
                 history.pushState({ page: slug }, designation, slug)
             })
         },
@@ -184,15 +208,6 @@ function marker(data) {
         if (previousSelectedMarker !== null) {
             previousSelectedMarker.setIcon(defaultIcon)
         }
-
-        const selectedIcon = L.icon({
-            iconUrl: './static/marker-icon-green.png',
-            shadowUrl: './static/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            tooltipAnchor: [2, -41],
-            shadowSize: [45, 41]
-        })
 
         a.layer.setIcon(selectedIcon)
         previousSelectedMarker = a.layer
