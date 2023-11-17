@@ -174,8 +174,9 @@ function marker(data) {
             const slug = String(feature.properties.slug)
             const path = decodeURIComponent(window.location.path)
 
-            if (slug === path) {
+            if (slug === path.slice(1)) {
                 layer.setIcon(selectedIcon)
+                previousSelectedMarker = layer
                 renderFeatureDetails(feature)
                 map.setView(layer._latlng, 18)
             }
