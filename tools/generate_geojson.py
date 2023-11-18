@@ -15,6 +15,17 @@ def get_data(src):
     return d
 
 
+def replace_umlauts(string):
+    slug = string
+
+    tpl = (('ü', 'ue'), ('Ü', 'Ue'), ('ä', 'ae'), ('Ä', 'Ae'), ('ö', 'oe'), ('Ö', 'Oe'), ('ß', 'ss'))
+
+    for item1, item2 in tpl:
+	    slug = slug.replace(item1, item2)
+
+    return slug
+
+
 def get_slug(designation, administrative, address):
     admin = administrative.split(', ')
 
@@ -32,7 +43,7 @@ def get_slug(designation, administrative, address):
         title = title.replace(item.strip(), '')
 
     slug = f'{title} {addr} {city}'.lower().strip()
-    slug = re.sub(r'\s+', ' ', slug).replace(' ', '-')
+    slug = re.sub(r'\s+', ' ', replace_umlauts(slug)).replace(' ', '-')
 
     return slug
 
