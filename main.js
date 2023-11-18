@@ -111,7 +111,7 @@ function addDistrictsLayer(data) {
 
 
 function capitalizeEachWord(str) {
-    return str.replace(/\w\S*/g, function(txt) {
+    return str.replace(/-/g, ' ').replace(/\w\S*/g, function(txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
     })
 }
@@ -135,7 +135,7 @@ function renderFeatureDetails(feature) {
         image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
     }
 
-    const slug = feature.properties.slug.replace(/-/g, ' ')
+    const slug = feature.properties.slug
     const address = feature.properties.address
     const postal_code = feature.properties.postal_code
     const district = feature.properties.place_name.slice(6)
@@ -150,9 +150,11 @@ function renderFeatureDetails(feature) {
     document.getElementById('scope').innerHTML = scope
     document.getElementById('img').innerHTML = image
 
-    const title = capitalizeEachWord(slug)
+    const title = `Denkmalliste - ${capitalizeEachWord(slug)}`
 
-    document.querySelector('title').innerHTML = `Denkmalliste - ${title}`
+    document.querySelector('title').innerHTML = title
+    document.querySelector('meta[property="og:title"]').setAttribute('content', title)
+    document.querySelector('meta[property="og:url"]').setAttribute('content', `${window.location.href}${slug}`)
 }
 
 
