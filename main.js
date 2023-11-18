@@ -110,6 +110,13 @@ function addDistrictsLayer(data) {
 }
 
 
+function capitalizeEachWord(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    })
+}
+
+
 function renderFeatureDetails(feature) {
     let scope = feature.properties.scope
     let reasons = feature.properties.reasons
@@ -128,10 +135,11 @@ function renderFeatureDetails(feature) {
         image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
     }
 
-    let address = feature.properties.address
-    let postal_code = feature.properties.postal_code
-    let district = feature.properties.place_name.slice(6)
-    let designation = feature.properties.designation
+    const slug = feature.properties.slug.replace(/-/g, ' ')
+    const address = feature.properties.address
+    const postal_code = feature.properties.postal_code
+    const district = feature.properties.place_name.slice(6)
+    const designation = feature.properties.designation
 
     document.getElementById('details').classList.remove('hidden')
     document.getElementById('address').innerHTML = address + '<br>' + postal_code + ' ' + district
@@ -141,6 +149,10 @@ function renderFeatureDetails(feature) {
     document.getElementById('reasons').innerHTML = reasons
     document.getElementById('scope').innerHTML = scope
     document.getElementById('img').innerHTML = image
+
+    const title = capitalizeEachWord(slug)
+
+    document.querySelector('title').innerHTML = `Denkmalliste - ${title}`
 }
 
 
