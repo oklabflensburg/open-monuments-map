@@ -76,15 +76,11 @@ Next initialize python virtualenv and install the dependencies
 ```
 cd tools
 virtualenv venv
-source venv/bin/activate
+source venv/local/bin/activate
 pip install -r requirements.txt
-```
-
-
-And last but not least, insert data into tables
-
-```
-./insert_boundaries.py ../data/denkmalliste_geometrien.geojson
+python insert_monuments.py ../data/stadt-flensburg-denkmalschutz.geojson 
+python insert_boundaries.py ../data/denkmalliste_geometrien.geojson 
+deactivate
 ```
 
 
