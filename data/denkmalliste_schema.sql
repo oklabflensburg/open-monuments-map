@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS monuments (
   monument_type VARCHAR,
   postal_code VARCHAR,
   place_name VARCHAR,
+  slug VARCHAR,
   wkb_geometry GEOMETRY(GEOMETRY, 4326)
 );
 
