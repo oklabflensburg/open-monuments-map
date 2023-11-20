@@ -1,0 +1,5 @@
+User-Agent: *
+Disallow: /lizenz
+Disallow: /impressum
+
+Sitemap: sitemap.xml
