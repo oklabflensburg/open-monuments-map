@@ -59,7 +59,7 @@ git lfs install
 Finally you can run sql statements inside `open-monuments-map` directory
 
 ```
-sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/flensburg_denkmalschutz.sql
+sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/denkmalliste_schema.sql
 sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/denkmalliste_geometrien_schema.sql
 ```
 
@@ -78,8 +78,9 @@ cd tools
 virtualenv venv
 source venv/local/bin/activate
 pip install -r requirements.txt
-python insert_monuments.py ../data/stadt-flensburg-denkmalschutz.geojson 
-python insert_boundaries.py ../data/denkmalliste_geometrien.geojson 
+python insert_monuments.py ../data/stadt-flensburg-denkmalschutz.geojson
+python insert_boundaries.py ../data/denkmalliste_geometrien.geojson
+python insert_nearest.py
 deactivate
 ```
 
