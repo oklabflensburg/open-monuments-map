@@ -42,6 +42,18 @@ CREATE INDEX IF NOT EXISTS monuments_wkb_geometry_idx ON monuments USING GIST (w
 
 
 
+-- HILFSTABELLE NÄCHSTGELEGENE OBJEKTE
+DROP TABLE IF EXISTS monument_nearest CASCADE;
+
+CREATE TABLE IF NOT EXISTS monument_nearest (
+  relation_id INT NOT NULL REFERENCES monuments (id),
+  monument_id INT NOT NULL REFERENCES monuments (id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS monument_nearest_monument_id_relation_id_idx ON monument_nearest (monument_id, relation_id);
+
+
+
 -- HILFSTABELLE SCHUTZUMFANG
 DROP TABLE IF EXISTS monument_scope CASCADE;
 
