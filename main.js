@@ -99,6 +99,16 @@ osmGeocoder.on('markgeocode', e => {
 })
 
 
+function imageExists(image_url) {
+    const http = new XMLHttpRequest()
+
+    http.open('HEAD', image_url, false)
+    http.send()
+
+    return http.status != 404
+}
+
+
 function addDistrictsLayer(data) {
     L.geoJson(data, {
         style: layerStyle.standard,
@@ -120,7 +130,8 @@ function capitalizeEachWord(str) {
 function renderFeatureDetails(feature) {
     let scope = feature.properties.scope
     let reasons = feature.properties.reasons
-    let image_url = feature.properties.image_url
+    const objectId = feature.properties.object_id
+    const image_url = `https://efi2.schleswig-holstein.de/dish/dish_opendata/Foto/${objectId}.jpg`
     let image = ''
 
     if (Array.isArray(scope)) {
@@ -131,7 +142,7 @@ function renderFeatureDetails(feature) {
         reasons = reasons.join(', ')
     }
 
-    if (image_url.length > 0) {
+    if (imageExists(image_url)) {
         image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
     }
 
