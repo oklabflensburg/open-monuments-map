@@ -60,7 +60,7 @@ const map = L.map('map').setView([54.7836, 9.4321], 13)
 L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Request=GetCapabilities', {
   layers: 'de_basemapde_web_raster_grau',
   maxZoom: 19,
-  attribution: '<a href="https://www.bkg.bund.de">GeoBasis-DE BKG</a> | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
+  attribution: '<a href="https://www.bkg.bund.de">© GeoBasis-DE BKG</a> | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
 }).addTo(map);
 
 /*L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -143,7 +143,7 @@ function renderFeatureDetails(feature) {
     }
 
     if (imageExists(image_url)) {
-        image = '<img class="mt-1 mb-3" src="' + image_url + '" alt="Denkmalschutz Objekt">'
+        image = '<div class="mb-3"><img class="mt-1" src="' + image_url + '" alt="Denkmalschutz Objekt"><div class="px-3 py-2 w-full text-xs text-gray-100 bg-gray-500">Foto © Landesamt für Denkmalpflege</div></div>'
     }
 
     const slug = feature.properties.slug
