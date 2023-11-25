@@ -67,7 +67,12 @@ sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/de
 Next we add all administrative geometries to our database
 
 ```
-ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250.geojson" -nln vg250
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250gem.geojson" -nln vg250gem
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250vwg.geojson" -nln vg250vwg
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250krs.geojson" -nln vg250krs
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250lan.geojson" -nln vg250lan
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250rbz.geojson" -nln vg250rbz
+ogr2ogr -f "PostgreSQL" PG:"dbname=postgres user=postgres port=5432 host=localhost" "data/vg250sta.geojson" -nln vg250sta
 ```
 
 
@@ -148,7 +153,7 @@ SELECT
 FROM monuments AS m
 JOIN monument_x_reason AS mxr ON mxr.monument_id = m.id
 JOIN monument_reason AS mr ON mxr.reason_id = mr.id
-JOIN vg250 AS v ON ST_Within(ST_GeomFromEWKB(m.wkb_geometry), ST_GeomFromEWKB(v.wkb_geometry))
+JOIN vg250gem AS v ON ST_Within(ST_GeomFromEWKB(m.wkb_geometry), ST_GeomFromEWKB(v.wkb_geometry))
 WHERE LOWER(v.gen) = 'flensburg';
 ```
 
