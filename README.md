@@ -1,5 +1,8 @@
 # Denkmalschutzkarte Flensburg
 
+[![Lighthouse CI](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lighthouse.yml)
+[![CodeQL](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/codeql.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/codeql.yml)
+
 
 ![Denkmalschutzkarte Flensburg](https://raw.githubusercontent.com/oklabflensburg/open-monuments-map/main/screenshot_denkmalschutzliste.jpg)
 
@@ -13,7 +16,7 @@ Die Daten der Kulturdenkmale haben wir über [Landesamt für Denkmalpflege](http
 
 
 
-## Interaktive Karte
+## Hintergrund
 
 Diese interaktive webbasierte Karte ist auf Basis der Daten des Landesamtes für Denkmalpflege und der Bilddaten des Open Data Repositories der Christian-Albrechts-Universität zu Kiel entstanden. Nach einigen Stunden der Betrachtung der Datensätze konnten wir die Daten lesen und mittels einem selbst geschriebenen Python Skript in ein maschinenlesbares offenes Format nach der Spezifikation [RFC 7946](https://geojson.org/) umwandeln. Wir nutzen die [OpenSteetMap](https://www.openstreetmap.de/) Karte als Basis für die Darstellungen der Marker. Wir mussten die gegebenen Daten bereinigen und Dupliketen aussortieren und die jeweilige Geografische Position mittels der [Google Maps API](https://geopy.readthedocs.io/en/stable/index.html?highlight=GoogleV3#googlev3) in Python aus den vorhandenen Daten wie der Straße und Hausnummer und der Stadt extrahieren. Unser Ziel ist es Interessierten eine Nutzung der offenen Daten mit wenig Arbeit und einem Mehrwert anzubieten.
 
