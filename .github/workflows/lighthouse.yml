@@ -22,6 +22,6 @@ jobs:
         uses: treosh/lighthouse-ci-action@v10
         with:
           urls: |
-            https://kitas-in-flensburg.de
+            https://denkmalschutz-flensburg.de
           uploadArtifacts: false
           temporaryPublicStorage: true
