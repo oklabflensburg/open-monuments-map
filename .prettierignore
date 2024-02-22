@@ -1,0 +1,8 @@
+# Ignore external copied files
+dist/
+
+# Ignore HTML formatting as the diffs are not great
+tailwind.config.js
+
+# Ignore third party JavaScript
+node_modules/

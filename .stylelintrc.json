@@ -1,0 +1,15 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "rule-empty-line-before": [
+			"always-multi-line",
+			{
+				"except": ["after-single-line-comment", "first-nested"]
+			}
+		],
+    "at-rule-no-unknown": null,
+    "block-no-empty": true,
+    "color-named": "never",
+    "color-no-hex": null
+  }
+}

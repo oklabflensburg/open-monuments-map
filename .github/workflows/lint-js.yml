@@ -1,0 +1,42 @@
+name: Lint js files
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+    paths:
+      - 'package.json'
+      - '.eslintignore'
+      - '.eslintrc.yaml'
+      - 'src/**/*.js'
+  pull_request:
+    paths:
+      - 'package.json'
+      - '.eslintignore'
+      - '.eslintrc.yaml'
+      - 'src/**/*.js'
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  lint-js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install latest nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install faster package manager
+        run: npm i -g pnpm
+
+      - name: Install dependencies from package.json
+        run: pnpm install
+
+      - name: Run lint specified in package.json
+        run: pnpm run lint:js
