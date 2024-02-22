@@ -1,10 +1,12 @@
-# Denkmalschutzkarte Flensburg
+# Denkmalliste Stadt Flensburg
 
+[![Lint css files](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-css.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-css.yml)
+[![Lint html files](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-html.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-html.yml)
+[![Lint js files](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-js.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lint-js.yml)
 [![Lighthouse CI](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lighthouse.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/lighthouse.yml)
-[![CodeQL](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/codeql.yml/badge.svg)](https://github.com/oklabflensburg/open-monuments-map/actions/workflows/codeql.yml)
 
 
-![Denkmalschutzkarte Flensburg](https://raw.githubusercontent.com/oklabflensburg/open-monuments-map/main/screenshot_denkmalschutzliste.jpg)
+![Denkmalliste Stadt Flensburg](https://raw.githubusercontent.com/oklabflensburg/open-monuments-map/main/screenshot_denkmalschutzliste.jpg)
 
 _Haftungsausschluss: Dieses Repository und die zugehörige Datenbank befinden sich derzeit in einer Beta-Version. Einige Aspekte des Codes und der Daten können noch Fehler enthalten. Bitte kontaktieren Sie uns per E-Mail oder erstellen Sie ein Issue auf GitHub, wenn Sie einen Fehler entdecken._
 
