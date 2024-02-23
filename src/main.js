@@ -38,8 +38,7 @@ const layerStyle = {
   }
 }
 
-
-const map = L.map('map').setView([54.7836, 9.4321], 13)
+const map = L.map('map').setView([54.79443515, 9.43205485], 13)
 
 L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Request=GetCapabilities', {
   layers: 'de_basemapde_web_raster_grau',
