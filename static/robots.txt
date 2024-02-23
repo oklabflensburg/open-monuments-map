@@ -1,5 +1,5 @@
 User-Agent: *
-Disallow: /lizenz
-Disallow: /impressum
+Disallow: /lizenz.html
+Disallow: /impressum.html
 
 Sitemap: https://denkmalschutz-flensburg.de/sitemap.xml
