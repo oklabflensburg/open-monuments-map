@@ -11,6 +11,12 @@ import districts from 'url:../data/flensburg_stadtteile.geojson'
 import markerDefault from 'url:../static/marker-icon-default.webp'
 import markerSelected from 'url:../static/marker-icon-active.webp'
 
+import { Env } from './env.js'
+
+
+const env = new Env()
+env.injectLinkContent('.contact-mail', 'mailto:', '', env.contactMail, 'E-Mail')
+
 
 const defaultIcon = L.icon({
   iconUrl: markerDefault,
