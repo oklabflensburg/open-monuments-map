@@ -108,13 +108,33 @@ osmGeocoder.on('markgeocode', (e) => {
 })
 
 
-function imageExists(image_url) {
-  const http = new XMLHttpRequest()
+async function fetchBlob(url) {
+  fetch(url, {
+    method: 'get',
+    mode: 'cors'
+  }).then((response) => {
+      if(response.ok) {
+        response.blob().then((blob) => {
+          const imageUrl = URL.createObjectURL(blob)
+          const imageElement = document.createElement('img')
+          imageElement.src = imageUrl
+          imageElement.setAttribute('alt', designation)
 
-  http.open('HEAD', image_url, false)
-  http.send()
+          const divElement = document.createElement('div')
+          divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
+          divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
 
-  return http.status !== 404
+          const container = document.querySelector('#detailImage')
+          container.appendChild(imageElement)
+          container.appendChild(divElement)
+        })
+      } else {
+        const debugLog = `${url} returned http status code ${response.status}` 
+        console.debug(debugLog)
+      }
+  }).catch((error) => {
+    console.error(error)
+  })
 }
 
 
@@ -132,7 +152,7 @@ function capitalizeEachWord(str) {
 }
 
 
-function renderFeatureDetails(feature) {
+async function renderFeatureDetails(feature) {
   const slug = feature.properties.slug
   const address = feature.properties.address
   const postal_code = feature.properties.postal_code
@@ -142,10 +162,11 @@ function renderFeatureDetails(feature) {
   const designation = feature.properties.designation
   const objectId = feature.properties.object_id
 
+  const imageUrl = `https://opendatarepo.lsh.uni-kiel.de/data/denkmalpflege/fotos/${objectId}.jpg`
+  await fetchBlob(imageUrl)
+
   let reasons = feature.properties.reasons
   let scope = feature.properties.scope
-
-  const image_url = `https://efi2.schleswig-holstein.de/dish/dish_opendata/Foto/${objectId}.jpg`
 
   if (Array.isArray(scope)) {
     scope = scope.join(', ')
@@ -161,11 +182,6 @@ function renderFeatureDetails(feature) {
   document.querySelector('meta[property="og:title"]').setAttribute('content', title)
   document.querySelector('meta[property="og:url"]').setAttribute('content', `${window.location.href}${slug}`)
 
-  if (imageExists(image_url)) {
-    const image = `<img src="${image_url}" alt="${designation}"><div class="px-3 py-2 w-full text-xs text-gray-100 bg-gray-600">Foto © Landesamt für Denkmalpflege</div>`
-
-    document.querySelector('#detailImage').innerHTML = image
-  }
 
   let detailOutput = ''
 
