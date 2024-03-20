@@ -162,7 +162,7 @@ async function renderFeatureDetails(feature) {
   const designation = feature.properties.designation
   const objectId = feature.properties.object_id
 
-  const imageUrl = `https://opendatarepo.lsh.uni-kiel.de/data/denkmalpflege/fotos/${objectId}.jpg`
+  const imageUrl = `https://opendata.schleswig-holstein.de/data/denkmalpflege/fotos/${objectId}.jpg`
   await fetchBlob(imageUrl)
 
   let reasons = feature.properties.reasons
