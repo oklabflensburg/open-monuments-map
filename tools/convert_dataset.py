@@ -81,39 +81,21 @@ def get_geolocation(addr):
 
 
 def defuck(line):
-    x = re.findall(r'[\.\-\s\w+]+\s\d+', line)
-    xx = []
-    tt = []
-    pp = []
+    matches = re.findall(r'([?:\s\.a-zA-ZäöüßÄÖÜ-]+)([\s]([\d+]+[\w-]?[,]?[\s]?)+)', line)
+    addresses = []
 
-    for j in x:
-        b = re.search(j, line)
+    for m in matches:
+        streetname = m[0].strip()
+        house_numbers = m[1].split(',')
+        house_numbers = [x.strip() for x in house_numbers if re.match(r'[\d+]', x.strip())]
 
-        if b is None:
-            continue
-        
-        if len(pp) > 0:
-            pp.append(b.start())
-        else:
-            pp.append(b.end())
+        for house_number in house_numbers:
+            hn = house_number.strip()
+            addr = f'{streetname} {hn}'
 
-        xx.append(b)
+            addresses.append(addr)
 
-    for i, p in enumerate(pp):
-        if i == 0 and len(pp) == 1:
-            tt.append(line)
-        elif i == 0 and len(pp) > 1:
-            tt.append(line[:pp[i + 1]])
-        elif i == 1 and len(pp) > 2:
-            tt.append(line[p + 1:pp[i + 1]])
-        elif i == 1:
-            tt.append(line[p + 1:])
-        elif i == len(pp) - 1:
-            tt.append(line[p + 1:])
-        else:
-            tt.append(line[pp[i - 1] + 1:p])
-
-    return tt
+    return addresses
 
 
 @click.command()
