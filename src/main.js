@@ -108,30 +108,31 @@ osmGeocoder.on('markgeocode', (e) => {
 })
 
 
-async function fetchBlob(url, designation) {
+function fetchBlob(url, designation) {
   fetch(url, {
     method: 'get',
     mode: 'cors'
   }).then((response) => {
-      if(response.ok) {
-        response.blob().then((blob) => {
-          const imageUrl = URL.createObjectURL(blob)
-          const imageElement = document.createElement('img')
-          imageElement.src = imageUrl
-          imageElement.setAttribute('alt', designation)
+    if (response.ok) {
+      response.blob().then((blob) => {
+        const imageUrl = URL.createObjectURL(blob)
+        const imageElement = document.createElement('img')
+        imageElement.src = imageUrl
+        imageElement.setAttribute('alt', designation)
 
-          const divElement = document.createElement('div')
-          divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
-          divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
+        const divElement = document.createElement('div')
+        divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
+        divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
 
-          const container = document.querySelector('#detailImage')
-          container.appendChild(imageElement)
-          container.appendChild(divElement)
-        })
-      } else {
-        const debugLog = `${url} returned http status code ${response.status}` 
-        console.debug(debugLog)
-      }
+        const container = document.querySelector('#detailImage')
+        container.appendChild(imageElement)
+        container.appendChild(divElement)
+      })
+    }
+    else {
+      const debugLog = `${url} returned http status code ${response.status}`
+      console.debug(debugLog)
+    }
   }).catch((error) => {
     console.error(error)
   })
@@ -152,7 +153,7 @@ function capitalizeEachWord(str) {
 }
 
 
-async function renderFeatureDetails(feature) {
+function renderFeatureDetails(feature) {
   const slug = feature.properties.slug
   const address = feature.properties.address
   const postal_code = feature.properties.postal_code
@@ -163,7 +164,7 @@ async function renderFeatureDetails(feature) {
   const objectId = feature.properties.object_id
 
   const imageUrl = `https://opendata.schleswig-holstein.de/data/denkmalpflege/fotos/${objectId}.jpg`
-  await fetchBlob(imageUrl, designation)
+  fetchBlob(imageUrl, designation)
 
   let reasons = feature.properties.reasons
   let scope = feature.properties.scope
