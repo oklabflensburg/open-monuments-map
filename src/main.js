@@ -108,7 +108,7 @@ osmGeocoder.on('markgeocode', (e) => {
 })
 
 
-async function fetchBlob(url) {
+async function fetchBlob(url, designation) {
   fetch(url, {
     method: 'get',
     mode: 'cors'
@@ -163,7 +163,7 @@ async function renderFeatureDetails(feature) {
   const objectId = feature.properties.object_id
 
   const imageUrl = `https://opendata.schleswig-holstein.de/data/denkmalpflege/fotos/${objectId}.jpg`
-  await fetchBlob(imageUrl)
+  await fetchBlob(imageUrl, designation)
 
   let reasons = feature.properties.reasons
   let scope = feature.properties.scope
