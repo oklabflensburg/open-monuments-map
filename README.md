@@ -37,7 +37,7 @@ Du kannst jederzeit ein Issue auf GitHub öffnen oder uns über oklabflensburg@g
 Install system dependencies and clone repository
 
 ```
-sudo apt install git git-lfs virtualenv python3 python3-pip postgresql-16 postgresql-16-postgis-3
+sudo apt install git git-lfs virtualenv python3 python3-pip python3-venv postgresql-16 postgis-3
 git clone https://github.com/oklabflensburg/open-monuments-map.git
 ```
 
@@ -99,8 +99,8 @@ Next initialize python virtualenv and install the dependencies
 
 ```
 cd tools
-virtualenv venv
-source venv/local/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 python insert_monuments.py ../data/stadt-flensburg-denkmalschutz.geojson
 python insert_boundaries.py ../data/denkmalliste_geometrien.geojson
