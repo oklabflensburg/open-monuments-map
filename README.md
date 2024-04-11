@@ -27,17 +27,33 @@ Du kannst jederzeit ein Issue auf GitHub öffnen oder uns über oklabflensburg@g
 
 
 
-
-
-
-
-
 ## Prerequisite
 
 Install system dependencies and clone repository
 
 ```
-sudo apt install git git-lfs virtualenv python3 python3-pip python3-venv postgresql-16 postgis-3
+sudo apt install wget
+sudo apt install git git-lfs
+sudo apt install python3 python3-pip python3-venv
+
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /etc/apt/trusted.gpg.d/pgdg.asc &>/dev/null
+sudo apt update
+sudo apt install postgresql-16 postgis
+sudo apt install gdal-bin
+
+# install NVM (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# download and install Node.js
+nvm install 20
+
+# verifies the right Node.js version is in the environment
+node -v
+
+# verifies the right NPM version is in the environment
+npm -v
+
 git clone https://github.com/oklabflensburg/open-monuments-map.git
 ```
 
