@@ -44,7 +44,13 @@ const layerStyle = {
   }
 }
 
-const map = L.map('map').setView([54.79443515, 9.43205485], 13)
+
+let geocoder = L.Control.Geocoder.nominatim()
+let previousSelectedMarker = null
+let slugUrlActive = null
+
+const center = [54.79443515, 9.43205485]
+const map = L.map('map').setView(center, 13)
 
 L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Request=GetCapabilities', {
   layers: 'de_basemapde_web_raster_grau',
@@ -54,8 +60,26 @@ L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Reques
 
 
 window.addEventListener('popstate', (event) => {
-  console.debug(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+  if (event.state !== null) {
+    document.querySelector('#detailImage').innerHTML = ''
+    document.querySelector('#detailList').innerHTML = ''
+    document.querySelector('#details').classList.remove('hidden')
+    document.querySelector('#about').classList.add('hidden')
+
+    map.setView(event.state.latlng, 19)
+    renderFeatureDetails(event.state.feature)
+  }
+  else {
+    const latlng = new L.latLng(center[0], center[1])
+    document.querySelector('#about').classList.remove('hidden')
+    document.querySelector('#details').classList.add('hidden')
+    map.setView(latlng, 13)
+  }
+
+  // event.state.layer.setIcon(selectedIcon)
+  previousSelectedMarker.setIcon(defaultIcon)
 })
+
 
 fetch(monuments, {
   method: 'GET'
@@ -75,11 +99,6 @@ fetch(districts, {
 })
 
 
-let geocoder = L.Control.Geocoder.nominatim()
-let previousSelectedMarker = null
-let slugUrlActive = null
-
-
 if (typeof URLSearchParams !== 'undefined' && location.search) {
   // parse /?geocoder=nominatim from URL
   const params = new URLSearchParams(location.search)
@@ -93,6 +112,7 @@ if (typeof URLSearchParams !== 'undefined' && location.search) {
     console.warn('Unsupported geocoder', geocoderString)
   }
 }
+
 
 const osmGeocoder = new L.Control.geocoder({
   query: 'Flensburg',
@@ -238,7 +258,7 @@ function marker(data) {
         document.querySelector('#about').classList.add('hidden')
         map.setView(e.latlng, 19)
         renderFeatureDetails(e.target.feature)
-        history.pushState({ page: slug }, slug, slug)
+        history.pushState({ 'feature': e.target.feature, 'latlng': e.latlng }, slug, slug)
       })
     },
     pointToLayer(feature, latlng) {
