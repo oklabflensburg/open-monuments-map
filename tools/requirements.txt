@@ -8,7 +8,7 @@ geopy==2.4.0
 h11==0.14.0
 httpcore==0.18.0
 httpx==0.25.0
-idna==3.4
+idna==3.7
 numpy==1.26.1
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
