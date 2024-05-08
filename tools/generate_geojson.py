@@ -1,5 +1,3 @@
-#!./venv/bin/python
-
 import json
 import click
 import re
@@ -32,11 +30,11 @@ def get_slug(designation, administrative, address):
     if len(admin) > 0:
         admin.sort(reverse=True)
 
-    title = re.sub('[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
-    city = re.sub('[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', '-'.join(admin))
-    addr = re.sub('[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', address)
+    title = re.sub(r'[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
+    city = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', '-'.join(admin))
+    addr = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', address)
 
-    street = re.sub('\d.*', '', address)
+    street = re.sub(r'\d.*', '', address)
     streets = list(set(street.split()))
 
     for item in streets:

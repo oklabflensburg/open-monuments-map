@@ -62,7 +62,7 @@ def get_monumets(cur, gen):
     FROM monuments AS m
     JOIN monument_x_reason AS mxr ON mxr.monument_id = m.id
     JOIN monument_reason AS mr ON mxr.reason_id = mr.id
-    JOIN vg250 AS v ON ST_Within(ST_GeomFromEWKB(m.wkb_geometry), ST_GeomFromEWKB(v.wkb_geometry))
+    JOIN vg250gem AS v ON ST_Within(ST_GeomFromEWKB(m.wkb_geometry), ST_GeomFromEWKB(v.wkb_geometry))
     WHERE LOWER(v.gen) = %s
     """
 

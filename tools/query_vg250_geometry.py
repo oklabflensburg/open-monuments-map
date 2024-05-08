@@ -30,7 +30,7 @@ def get_boundaries(cur, gen):
     sql = """
         SELECT ST_ASGeoJson(ST_Buffer(ST_GeogFromWKB(
             wkb_geometry), 350, 'endcap=round join=round')
-        ) as geojson FROM vg250 WHERE LOWER(gen) = %s
+        ) as geojson FROM vg250gem WHERE LOWER(gen) = %s
     """
 
     boundaries = []
