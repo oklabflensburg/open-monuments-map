@@ -94,8 +94,8 @@ git lfs pull
 Run sql statements inside `open-monuments-map` root directory
 
 ```
-sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/denkmalliste_schema.sql
-sudo -i -Hu postgres psql -U postgres -h localhost -d postgres -p 5432 < data/denkmalliste_geometrien_schema.sql
+psql -U oklab -h localhost -d oklab -p 5432 < data/denkmalliste_schema.sql
+psql -U oklab -h localhost -d oklab -p 5432 < data/denkmalliste_geometrien_schema.sql
 ```
 
 
@@ -131,7 +131,7 @@ deactivate
 To query a boundary of an monument call this script with an `object_id`
 
 ```
-./query_boundaries.py 4677
+python3 query_boundary.py 4677
 ```
 
 ```json
@@ -142,7 +142,7 @@ To query a boundary of an monument call this script with an `object_id`
 To query an administrative geometry with a buffer by 350 meters
 
 ```
-./query_geojson.py Wiedenborstel
+python3 query_monuments.py Wiedenborstel
 ```
 
 ```json
