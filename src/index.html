@@ -14,34 +14,43 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="main.css" rel="stylesheet">
 </head>
-<body>
-    <div class="h-screen overflow-auto bg-slate-50">
-        <div class="md:flex">
-            <div class="w-full sm:w-8/12 md:w-7/12 lg:w-9/12 h-96 overflow-hidden" id="map"></div>
-            <div class="w-full sm:w-4/12 md:w-5/12 lg:w-3/12 sm:overflow-scroll bg-gray-100" id="filter">
-                <div class="py-2 px-3 mb-4 lg:mb-8">
-                    <h1 class="tracking-normal leading-normal font-bold text-2xl md:text-3xl lg:text-4xl mb-1">Denkmalliste</h1>
-                    <h2><a href="/" class="text-xl md:text-2xl text-gray-700 hover:text-blue-700 focus:text-blue-800" title="Stadtplan Flensburg">Stadtplan Flensburg</a></h2>
-                </div>
-                <div class="bg-white border border-slate-300 leading-normal lg:mb-6 lg:text-lg mb-3 mx-3 rounded text-black text-md hidden" id="details">
-                    <div id="detailImage"></div>
-                    <ul class="p-3" id="detailList"></ul>
-                </div>
-                <div class="mt-3 md:mt-6 py-2 px-3" id="about">
-                    <h3 class="font-bold text-xl md:text-2xl mb-1">Hintergrund</h3>
-                    <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Die Idee, Denkmäler und deren Merkmale auf einer digitalen Karte anzuzeigen, ist während eines Spaziergangs durch Flensburg entstanden. Auf dem Open Data Portal Schleswig-Holstein stellt das Landesamt für Denkmalpflege Schleswig-Holstein eine Denkmalliste zur Verfügung, jedoch leider ohne Angabe der Koordinaten. Wir haben uns entschieden, dies zu ändern und einen Prototypen der Öffentlichkeit zugänglich zu machen, indem wir die Einträge mit den Gebäudekoordinaten ergänzen. Falls Sie Anregungen, Kritik oder Ergänzungen haben, schreiben Sie uns bitte eine <a class="contact-mail text-blue-600 hover:text-blue-400 focus:text-blue-400" href="" target="_blank"></a>.</p>
-                    <h3 class="font-bold text-xl md:text-2xl mb-1">Datenquelle</h3>
-                    <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Das Landesamt für Denkmalpflege Schleswig-Holstein prüft anhand der gesetzlich vorgegebenen Kriterien den besonderen Wert eines Kulturdenkmals und legt die Maßstäbe, die Methodik für die Erfassung und Pflege sowie den Schutzumfang der Kulturdenkmale fest. Die erhobenen Daten der Denkmalliste werden im Open Data Portal des Landes Schleswig-Holstein <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege" target="_blank">zum Download</a> angeboten. Die Kartendarstellung wurde von engagierten Einwohner:innen und ehrenamtlichen Mitgliedern des OK Lab Flensburgs entwickelt.</p> 
-                   <h3 class="font-bold text-xl md:text-2xl mb-1">Quellcode</h3>
-                   <p class="font-normal leading-normal text-md lg:text-lg">Der aktuelle Entwicklungsstand kann auf <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://github.com/oklabflensburg/open-monuments-map" target="_blank">GitHub</a> eingesehen werden und von jeder Kommune, Stadt oder Land kostenfrei und lizenzfrei genutzt und redeployed werden.</p>
-                </div>
-            </div>
-        </div>
-        <footer class="bg-gray-200 h-[4vh] border-t md:border-t border-gray-300 text-sm flex justify-center items-center">
-            <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./impressum.html">Impressum</a> <span class="inline-block text-gray-700 px-3">|</span> <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./impressum.html#privacy">Datenschutzerklärung</a> <span class="inline-block text-gray-700 px-3">|</span> <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./lizenz.html">Lizenz</a>
-        </footer>
+
+<body class="relative flex justify-center flex-col h-screen w-full">
+  <div class="relative sm:flex sm:flex-row w-full h-screen overflow-hidden">
+    <div id="sidebarCloseWrapper" class="fixed right-3 top-3 z-1300 sm:hidden">
+      <a id="sidebarCloseButton" class="flex justify-center items-center relative inline-block shadow-md bg-gray-200 text-sky-900 hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-300 rounded-full w-8 h-8 cursor-pointer font-bold" role="button">
+        <svg class="h-7 w-7 inline" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10.394 5.50735L3.9873 11.9473L10.394 18.3873C10.552 18.5949 10.8165 18.6912 11.071 18.6338C11.3254 18.5764 11.523 18.376 11.5767 18.1207C11.6305 17.8655 11.5304 17.6024 11.3206 17.4473L6.5273 12.614L19.2806 12.614C19.6488 12.614 19.9473 12.3155 19.9473 11.9473C19.9473 11.5792 19.6488 11.2807 19.2806 11.2807L6.5273 11.2807L11.3206 6.44735C11.5802 6.18593 11.5787 5.76359 11.3173 5.50401C11.0559 5.24444 10.6335 5.24593 10.374 5.50735H10.394Z"></path>
+        </svg>
+      </a>
     </div>
 
-    <script type="module" src="./main.js"></script>
+    <div id="map" class="h-screen w-full xs:w-5/12 sm:w-6/12 md:w-7/12 lg:w-8/12 xl:w-9/12"></div>
+
+    <div id="sidebar" class="absolute left-0 top-0 h-screen sm:relative w-full xs:w-7/12 sm:w-6/12 md:w-5/12 lg:w-4/12 xl:w-3/12 overflow-scroll bg-gray-100 z-1200">
+
+      <div id="sidebarHeader" class="py-2 px-3 mb-4 lg:mb-8">
+        <h1 class="tracking-normal leading-normal font-bold text-2xl md:text-3xl lg:text-4xl mb-1">Denkmalliste</h1>
+        <h2><a href="/" class="text-xl md:text-2xl text-gray-700 hover:text-blue-700 focus:text-blue-800" title="Stadtplan Flensburg">Stadtplan Flensburg</a></h2>
+      </div>
+
+      <div class="mt-3 md:mt-6 py-2 px-3" id="about">
+        <h3 class="font-bold text-xl md:text-2xl mb-1">Hintergrund</h3>
+        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Die Idee, Denkmäler und deren Merkmale auf einer digitalen Karte anzuzeigen, ist während eines Spaziergangs durch Flensburg entstanden. Auf dem Open Data Portal Schleswig-Holstein stellt das Landesamt für Denkmalpflege Schleswig-Holstein eine Denkmalliste zur Verfügung, jedoch leider ohne Angabe der Koordinaten. Wir haben uns entschieden, dies zu ändern und einen Prototypen der Öffentlichkeit zugänglich zu machen, indem wir die Einträge mit den Gebäudekoordinaten ergänzen. Falls Sie Anregungen, Kritik oder Ergänzungen haben, schreiben Sie uns bitte eine <a class="contact-mail text-blue-600 hover:text-blue-400 focus:text-blue-400" href="" target="_blank"></a>.</p>
+        <h3 class="font-bold text-xl md:text-2xl mb-1">Datenquelle</h3>
+        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Das Landesamt für Denkmalpflege Schleswig-Holstein prüft anhand der gesetzlich vorgegebenen Kriterien den besonderen Wert eines Kulturdenkmals und legt die Maßstäbe, die Methodik für die Erfassung und Pflege sowie den Schutzumfang der Kulturdenkmale fest. Die erhobenen Daten der Denkmalliste werden im Open Data Portal des Landes Schleswig-Holstein <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege" target="_blank">zum Download</a> angeboten. Die Kartendarstellung wurde von engagierten Einwohner:innen und ehrenamtlichen Mitgliedern des OK Lab Flensburgs entwickelt.</p>
+        <h3 class="font-bold text-xl md:text-2xl mb-1">Quellcode</h3>
+        <p class="font-normal leading-normal text-md lg:text-lg">Der aktuelle Entwicklungsstand kann auf <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://github.com/oklabflensburg/open-monuments-map" target="_blank">GitHub</a> eingesehen werden und von jeder Kommune, Stadt oder Land kostenfrei und lizenzfrei genutzt und redeployed werden.</p>
+      </div>
+
+      <div id="sidebarContent" class="bg-white border border-slate-300 leading-normal lg:text-lg m-3 rounded text-black text-md hidden">
+        <div id="detailImage"></div>
+        <ul class="p-3" id="detailList"></ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
 </body>
 </html>

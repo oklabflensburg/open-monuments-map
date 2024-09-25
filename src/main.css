@@ -166,16 +166,42 @@ html, body {
   background-color: rgb(64 64 65 / 70%);
 }
 
-#map {
-  height: 40vh
+
+
+.leaflet-left {
+  right: 0;
 }
 
-@media (width >= 768px) {
-  tr > td:first-of-type {
-    padding-right: 15px;
+.leaflet-top {
+  bottom: 0;
+}
+
+  @media (width >= 640px) {
+    .sm\:container {
+      max-width: 640px;
+    }
   }
 
-  #map, #filter {
-    height: 96vh;
+  @media (width >= 768px) {
+    .sm\:container {
+      max-width: 768px;
+    }
   }
-}
+
+  @media (width >= 1024px) {
+    .sm\:container {
+      max-width: 1024px;
+    }
+  }
+
+  @media (width >= 1280px) {
+    .sm\:container {
+      max-width: 1280px;
+    }
+  }
+
+  @media (width >= 1536px) {
+    .sm\:container {
+      max-width: 1536px;
+    }
+  }

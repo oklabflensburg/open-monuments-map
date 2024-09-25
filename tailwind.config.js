@@ -2,7 +2,12 @@
 module.exports = {
   content: ['./src/*.{html,js}'],
   theme: {
-    extend: {},
+    extend: {
+      zIndex: {
+        '1200': '1200',
+        '1300': '1300'
+      }
+    }
   },
   plugins: [],
 }

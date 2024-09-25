@@ -1,9 +1,7 @@
 import L from 'leaflet'
-import 'leaflet-control-geocoder'
 import 'leaflet.markercluster'
 
 import 'leaflet/dist/leaflet.css'
-import 'leaflet-control-geocoder/dist/Control.Geocoder.css'
 
 import monuments from 'url:../data/stadt-flensburg-denkmalschutz.geojson'
 import districts from 'url:../data/flensburg_stadtteile.geojson'
@@ -45,40 +43,45 @@ const layerStyle = {
 }
 
 
-let geocoder = L.Control.Geocoder.nominatim()
 let previousSelectedMarker = null
-let slugUrlActive = null
 
 const center = [54.79443515, 9.43205485]
-const map = L.map('map').setView(center, 13)
 
-L.tileLayer.wms('https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&Request=GetCapabilities', {
-  layers: 'de_basemapde_web_raster_grau',
+var map = L.map('map', {
+  zoomControl: false
+}).setView(center, 13)
+
+var zoomControl = L.control.zoom({
+  position: 'bottomright'
+}).addTo(map)
+
+L.tileLayer('https://tiles.oklabflensburg.de/sgm/{z}/{x}/{y}.png', {
   maxZoom: 20,
-  attribution: '<a href="https://www.bkg.bund.de">© GeoBasis-DE / BKG 2024</a> | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>'
+  tileSize: 256,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map)
 
 
+/*
 window.addEventListener('popstate', (event) => {
-  if (event.state !== null) {
+  if (event.state !== null && event.state.screen !== 'about') {
     document.querySelector('#detailImage').innerHTML = ''
     document.querySelector('#detailList').innerHTML = ''
-    document.querySelector('#details').classList.remove('hidden')
+    document.querySelector('#sidebarContent').classList.remove('hidden')
     document.querySelector('#about').classList.add('hidden')
 
     map.setView(event.state.latlng, 19)
     renderFeatureDetails(event.state.feature)
-  }
-  else {
+  } else {
     const latlng = new L.latLng(center[0], center[1])
     document.querySelector('#about').classList.remove('hidden')
-    document.querySelector('#details').classList.add('hidden')
+    document.querySelector('#sidebarContent').classList.add('hidden')
     map.setView(latlng, 13)
   }
 
-  // event.state.layer.setIcon(selectedIcon)
-  previousSelectedMarker.setIcon(defaultIcon)
+  //previousSelectedMarker.setIcon(defaultIcon)
 })
+*/
 
 
 fetch(monuments, {
@@ -99,33 +102,14 @@ fetch(districts, {
 })
 
 
-if (typeof URLSearchParams !== 'undefined' && location.search) {
-  // parse /?geocoder=nominatim from URL
-  const params = new URLSearchParams(location.search)
-  const geocoderString = params.get('geocoder')
+function updateScreen(screen) {
+  const title = 'Stadtplan der Denkmalliste Flensburg'
 
-  if (geocoderString && L.Control.Geocoder[geocoderString]) {
-    console.log('Using geocoder', geocoderString)
-    geocoder = L.Control.Geocoder[geocoderString]()
-  }
-  else if (geocoderString) {
-    console.warn('Unsupported geocoder', geocoderString)
+  if (screen === 'home') {
+    document.querySelector('title').innerHTML = title
+    document.querySelector('meta[property="og:title"]').setAttribute('content', title)
   }
 }
-
-
-const osmGeocoder = new L.Control.geocoder({
-  query: 'Flensburg',
-  position: 'topright',
-  placeholder: 'Adresse oder Ort',
-  defaultMarkGeocode: false
-}).addTo(map)
-
-
-osmGeocoder.on('markgeocode', (e) => {
-  const bounds = L.latLngBounds(e.geocode.bbox._southWest, e.geocode.bbox._northEast)
-  map.fitBounds(bounds)
-})
 
 
 function fetchBlob(url, designation) {
@@ -213,7 +197,7 @@ function renderFeatureDetails(feature) {
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Begründung</strong><br>${reasons}</li>`
   detailOutput += `<li class="pt-2"><strong>Merkmal</strong><br>${monument_type}</li>`
 
-  document.querySelector('#details').classList.remove('hidden')
+  document.querySelector('#sidebarContent').classList.remove('hidden')
   document.querySelector('#detailList').innerHTML = detailOutput
 
   document.querySelector('title').innerHTML = title
@@ -238,11 +222,10 @@ function marker(data) {
         previousSelectedMarker = layer
         renderFeatureDetails(feature)
         map.setView(layer._latlng, 19)
-        slugUrlActive = true
       }
 
       layer.on('click', function (e) {
-        document.getElementById('filter').scrollTo({
+        document.getElementById('sidebar').scrollTo({
           top: 0,
           left: 0
         })
@@ -255,10 +238,17 @@ function marker(data) {
 
         document.querySelector('#detailImage').innerHTML = ''
         document.querySelector('#detailList').innerHTML = ''
+        document.querySelector('#map').classList.add('h-4/6', 'sm:h-screen')
+        document.querySelector('#map').classList.remove('h-screen')
+        document.querySelector('#sidebar').classList.add('h-2/6', 'sm:relative', 'sm:h-screen')
+        document.querySelector('#sidebarCloseWrapper').classList.remove('hidden')
+        document.querySelector('#sidebarHeader').classList.add('hidden')
         document.querySelector('#about').classList.add('hidden')
+
         map.setView(e.latlng, 19)
         renderFeatureDetails(e.target.feature)
-        history.pushState({ 'feature': e.target.feature, 'latlng': e.latlng }, slug, slug)
+        history.pushState({ 'screen': slug }, '', slug)
+        window.dispatchEvent(new Event('popstate'))
       })
     },
     pointToLayer(feature, latlng) {
@@ -284,3 +274,56 @@ function marker(data) {
   markers.addLayer(geojsonGroup)
   map.addLayer(markers)
 }
+
+
+function handleWindowSize() {
+  const innerWidth = window.innerWidth
+
+  if (innerWidth >= 1024) {
+    map.removeControl(zoomControl)
+
+    zoomControl = L.control.zoom({
+      position: 'topleft'
+    }).addTo(map)
+  }
+  else {
+    map.removeControl(zoomControl)
+  }
+}
+
+
+document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
+  e.preventDefault()
+
+  document.querySelector('#sidebar').classList.add('sm:h-screen')
+  document.querySelector('#sidebar').classList.remove('absolute', 'h-screen')
+  document.querySelector('#sidebarCloseWrapper').classList.add('hidden')
+
+  history.replaceState({ screen: 'home' }, '', '/')
+})
+
+
+window.onload = () => {
+  if (!history.state) {
+    history.replaceState({ screen: 'home' }, '', '/')
+  }
+}
+
+// Handle popstate event when navigating back/forward in the history
+window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.screen === 'home') {
+    document.querySelector('#sidebar').classList.add('sm:h-screen')
+    document.querySelector('#sidebar').classList.remove('absolute', 'h-screen')
+    document.querySelector('#sidebarCloseWrapper').classList.add('hidden')
+  }
+  else {
+    updateScreen('home')
+  }
+})
+
+
+// Attach the resize event listener, but ensure proper function reference
+window.addEventListener('resize', handleWindowSize)
+
+// Trigger the function initially to handle the initial screen size
+handleWindowSize()
