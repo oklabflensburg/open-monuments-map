@@ -24,23 +24,12 @@ def replace_umlauts(string):
     return slug
 
 
-def get_slug(designation, administrative, address):
-    admin = administrative.split(', ')
-
-    if len(admin) > 0:
-        admin.sort(reverse=True)
-
+def get_slug(designation, street, housenumber, city):
     title = re.sub(r'[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
-    city = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', '-'.join(admin))
-    addr = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', address)
+    city_parsed = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', city)
+    street_parsed = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', street)
 
-    street = re.sub(r'\d.*', '', address)
-    streets = list(set(street.split()))
-
-    for item in streets:
-        title = title.replace(item.strip(), '')
-
-    slug = f'{title} {addr} {city}'.lower().strip()
+    slug = f'{title} {street_parsed} {housenumber} {city_parsed}'.lower().strip()
     slug = re.sub(r'\s+', ' ', replace_umlauts(slug)).replace(' ', '-')
 
     return slug
@@ -67,21 +56,24 @@ def main(src):
         if not o['coords'] or len(o['coords']) != 2:
             continue
 
+        street = o['street'] if o['street'] is not None else ''
+        housenumber = o['housenumber'] if o['housenumber'] is not None else ''
+        city = o['city'] if o['city'] is not None else ''
         point = Point((float(o['coords'][1]), float(o['coords'][0])))
 
         properties = {
-            'slug': get_slug(o['designation'], o['authority'], o['address']),
+            'slug': get_slug(o['designation'], street, housenumber, city),
             'object_id': o['object_id'],
             'designation': o['designation'],
             'monument_type': o['type'],
-            'administrative': o['authority'],
-            'place_name': o['district'],
             'image_url': o['url'] if 'url' in o else '',
             'description': o['description'],
             'reasons': o['reasons'] if 'reasons' in o else [],
             'scope': o['scope'] if 'scope' in o else [],
-            'postal_code': o['postal_code'],
-            'address': o['address']
+            'street': street,
+            'housenumber': housenumber,
+            'postcode': o['postcode'] if o['postcode'] is not None else '',
+            'city': city
         }
 
         fc.append(Feature(geometry=point, properties=properties))

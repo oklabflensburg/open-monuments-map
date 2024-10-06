@@ -57,7 +57,10 @@ def get_geolocation(addr):
 
     loc = {
         'coords': [],
-        'postal_code': None
+        'street': None,
+        'housenumber': None,
+        'postcode': None,
+        'city': None
     }
 
     try:
@@ -65,8 +68,17 @@ def get_geolocation(addr):
             return loc
 
         for component in locations.raw['address_components']:
+            if 'route' in component['types']:
+                loc['street'] = component['short_name']
+
+            if 'street_number' in component['types']:
+                loc['housenumber'] = component['short_name']
+
+            if 'locality' in component['types']:
+                loc['city'] = component['long_name']
+
             if 'postal_code' in component['types']:
-                loc['postal_code'] = component['short_name']
+                loc['postcode'] = component['short_name']
 
         try:
             loc['coords'] = [locations.latitude, locations.longitude]
@@ -138,9 +150,6 @@ def main(url):
                 if 'Kulturdenkmaltyp' in o:
                     o['type'] = o.pop('Kulturdenkmaltyp')
 
-                if 'Gemeinde' in o:
-                    o['authority'] = o.pop('Gemeinde')
-
                 if 'Kreis' in o:
                     o['district'] = o.pop('Kreis')
 
@@ -156,12 +165,14 @@ def main(url):
                 if 'Schutzumfang' in o:
                     o['scope'] = o.pop('Schutzumfang')
 
-                o['address'] = a
-
-                o['postal_code'] = loc['postal_code']
+                o['street'] = loc['street']
+                o['housenumber'] = loc['housenumber']
+                o['postcode'] = loc['postcode']
+                o['city'] = loc['city']
 
                 o['coords'] = loc['coords']
 
+                del o['Gemeinde']
                 del o['Adresse-Lage']
 
                 aa.append(o)

@@ -159,9 +159,10 @@ function capitalizeEachWord(str) {
 
 function renderFeatureDetails(feature) {
   const slug = feature.properties.slug
-  const address = feature.properties.address
-  const postal_code = feature.properties.postal_code
-  const district = feature.properties.place_name.slice(6)
+  const street = feature.properties.street
+  const housenumber = feature.properties.housenumber
+  const postcode = feature.properties.postcode
+  const city = feature.properties.city
   const monument_type = feature.properties.monument_type
   const description = feature.properties.description
   const designation = feature.properties.designation
@@ -191,7 +192,7 @@ function renderFeatureDetails(feature) {
   let detailOutput = ''
 
   detailOutput += `<li class="pb-2 text-xl lg:text-2xl"><strong>${designation}</strong></li>`
-  detailOutput += `<li class="last-of-type:pb-2 py-1 mb-3">${address}<br>${postal_code}  ${district}</li>`
+  detailOutput += `<li class="last-of-type:pb-2 py-1 mb-3">${street} ${housenumber}<br>${postcode} ${city}</li>`
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Beschreibung</strong><br>${description}</li>`
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${scope}</li>`
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Begründung</strong><br>${reasons}</li>`
@@ -252,7 +253,15 @@ function marker(data) {
       })
     },
     pointToLayer(feature, latlng) {
-      const label = String(feature.properties.address)
+      const street = feature.properties.street
+      const housenumber = feature.properties.housenumber
+      const designation = feature.properties.designation
+
+      let label = designation
+
+      if (street.length > 0) {
+        label = `${street} ${housenumber}`
+      }
 
       return L.marker(latlng, { icon: defaultIcon }).bindTooltip(label, {
         permanent: false,
