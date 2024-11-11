@@ -6,6 +6,7 @@ dist/
 .DS_Store
 .env
 .idea
+*.zip
 *.tgz
 *.suo
 *.local
