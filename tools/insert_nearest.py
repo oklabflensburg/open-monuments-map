@@ -32,7 +32,7 @@ except Exception as e:
 
 
 def insert_nearest(cur, relation_id, monument_id):
-    reason_sql = 'INSERT INTO monument_nearest (relation_id, monument_id) VALUES (%s, %s)'
+    reason_sql = 'INSERT INTO sh_monument_nearest (relation_id, monument_id) VALUES (%s, %s)'
 
     try:
         cur.execute(reason_sql, (relation_id, monument_id))
@@ -49,7 +49,7 @@ def main():
 
 
 def get_monuments(cur):
-    sql = 'SELECT id, ST_X(wkb_geometry) AS lat, ST_Y(wkb_geometry) AS lng FROM monuments'
+    sql = 'SELECT id, ST_X(wkb_geometry) AS lat, ST_Y(wkb_geometry) AS lng FROM sh_monuments'
 
     cur.execute(sql)
     rows = cur.fetchall()
@@ -58,7 +58,7 @@ def get_monuments(cur):
 
 
 def get_distance(cur, relation_id, lat, lng):
-    sql = 'SELECT id, wkb_geometry <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326) AS dist FROM monuments ORDER BY dist LIMIT 7'
+    sql = 'SELECT id, wkb_geometry <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326) AS dist FROM sh_monuments ORDER BY dist LIMIT 7'
 
     cur.execute(sql, (lat, lng))
     rows = cur.fetchall()

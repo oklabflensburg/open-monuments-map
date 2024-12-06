@@ -49,17 +49,17 @@ def retrieve_geometries(cur, features):
 
 
 def insert_reason(cur, monument_id, reason_label):
-    reason_sql = 'INSERT INTO monument_reason (label) VALUES (%s) RETURNING id'
+    reason_sql = 'INSERT INTO sh_monument_reason (label) VALUES (%s) RETURNING id'
 
     try:
         cur.execute(reason_sql, (reason_label,))
     except UniqueViolation as e:
-        query_reason_sql = 'SELECT id FROM monument_reason WHERE label = %s'
+        query_reason_sql = 'SELECT id FROM sh_monument_reason WHERE label = %s'
         cur.execute(query_reason_sql, (reason_label,))
 
     reason_id = cur.fetchone()[0]
 
-    monument_x_reason_sql = 'INSERT INTO monument_x_reason (monument_id, reason_id) VALUES (%s, %s) ON CONFLICT DO NOTHING'
+    monument_x_reason_sql = 'INSERT INTO sh_monument_x_reason (monument_id, reason_id) VALUES (%s, %s)'
 
     try:
         cur.execute(monument_x_reason_sql, (monument_id, reason_id))
@@ -69,14 +69,14 @@ def insert_reason(cur, monument_id, reason_label):
 
 def insert_object(cur, properties, geometry):
     object_id = properties['object_id']
+    street = properties['street']
+    housenumber = properties['housenumber']
+    postcode = properties['postcode']
+    city =  properties['city']
     monument_type = properties['monument_type']
-    administrative = properties['administrative']
     description = properties['description']
     designation = properties['designation']
-    postal_code = properties['postal_code']
-    place_name = properties['place_name']
     image_url = properties['image_url']
-    address = properties['address']
     reasons = properties['reasons']
     scope = properties['scope']
     slug = properties['slug']
@@ -85,14 +85,13 @@ def insert_object(cur, properties, geometry):
     wkb_geometry = wkb.dumps(g, hex=True, srid=4326)
 
     sql = '''
-        INSERT INTO monuments (object_id, monument_type, administrative, place_name, image_url, 
-        description, designation, postal_code, address, slug, wkb_geometry)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id
+        INSERT INTO sh_monuments (object_id, monument_type, street, housenumber, postcode,
+            city, image_url, description, designation, slug, wkb_geometry)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
     '''
 
     try:
-        cur.execute(sql, (object_id, monument_type, administrative, place_name,
-            image_url, description, designation, postal_code, address, slug, wkb_geometry))
+        cur.execute(sql, (object_id, monument_type, street, housenumber, postcode, city, image_url, description, designation, slug, wkb_geometry))
         monument_id = cur.fetchone()[0]
     except UniqueViolation as e:
         return
