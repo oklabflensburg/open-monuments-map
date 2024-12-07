@@ -313,8 +313,13 @@ document.querySelector('#sidebarCloseButton').addEventListener('click', function
 
 
 window.onload = () => {
-  if (!history.state) {
+  const path = decodeURIComponent(window.location.pathname)
+
+  if (!history.state && path === '/') {
     history.replaceState({ screen: 'home' }, '', '/')
+  }
+  else if (!history.state && path !== '/') {
+    history.replaceState({ screen: path }, '', path)
   }
 }
 
