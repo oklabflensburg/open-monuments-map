@@ -85,7 +85,7 @@ def insert_object(cur, properties, geometry):
     wkb_geometry = wkb.dumps(g, hex=True, srid=4326)
 
     sql = '''
-        INSERT INTO sh_monuments (object_id, monument_type, street, housenumber, postcode,
+        INSERT INTO sh_monument (object_id, monument_type, street, housenumber, postcode,
             city, image_url, description, designation, slug, wkb_geometry)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
     '''

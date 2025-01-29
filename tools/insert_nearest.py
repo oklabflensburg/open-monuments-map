@@ -49,7 +49,7 @@ def main():
 
 
 def get_monuments(cur):
-    sql = 'SELECT id, ST_X(wkb_geometry) AS lat, ST_Y(wkb_geometry) AS lng FROM sh_monuments'
+    sql = 'SELECT id, ST_X(wkb_geometry) AS lat, ST_Y(wkb_geometry) AS lng FROM sh_monument'
 
     cur.execute(sql)
     rows = cur.fetchall()
@@ -58,7 +58,7 @@ def get_monuments(cur):
 
 
 def get_distance(cur, relation_id, lat, lng):
-    sql = 'SELECT id, wkb_geometry <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326) AS dist FROM sh_monuments ORDER BY dist LIMIT 7'
+    sql = 'SELECT id, wkb_geometry <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326) AS dist FROM sh_monument ORDER BY dist LIMIT 7'
 
     cur.execute(sql, (lat, lng))
     rows = cur.fetchall()

@@ -27,7 +27,7 @@ except Exception as e:
 
 
 def get_boundaries(cur, object_id):
-    sql = 'SELECT ST_AsGeoJson(wkb_geometry) FROM monument_boundaries WHERE object_id = %s'
+    sql = 'SELECT ST_AsGeoJson(wkb_geometry) FROM sh_monument_boundary WHERE object_id = %s'
 
     boundaries = []
 

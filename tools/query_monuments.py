@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 
-env_path = Path('..')/'.env'
+env_path = Path('../.env')
 load_dotenv(dotenv_path=env_path)
 
 
@@ -26,63 +26,58 @@ except Exception as e:
     print(e)
 
 
-def get_monumets(cur, gen):
-    sql = """
+def get_monumet(cur, object_id):
+    sql = '''
+    WITH monument_reasons AS (
+        SELECT
+            mxr.monument_id,
+            string_agg(mr.label, ', ') AS reason_labels
+        FROM
+            sh_monument_x_reason AS mxr
+        JOIN
+            sh_monument_reason AS mr
+        ON
+            mxr.reason_id = mr.id
+        GROUP BY
+            mxr.monument_id
+    )
     SELECT
-        json_build_object(
-            'type', 'FeatureCollection',
-            'crs', json_build_object(
-                'type', 'name',
-                'properties', json_build_object(
-                    'name', 'urn:ogc:def:crs:OGC:1.3:CRS84'
-                )
-            ),
-            'features', json_agg(
-                json_build_object(
-                    'type', 'Feature',
-                    'geometry', ST_AsGeoJSON(m.wkb_geometry)::json,
-                    'properties', json_build_object(
-                        'object_id', m.object_id,
-                        'place_name', m.place_name,
-                        'address', m.address,
-                        'postal_code', m.postal_code,
-                        'image_url', m.image_url,
-                        'designation', m.designation,
-                        'description', m.description,
-                        'monument_type', m.monument_type,
-                        'reasons', (
-                            SELECT string_agg(mr.label, ', ')
-                            FROM monument_reason AS mr
-                            WHERE mxr.monument_id = m.id
-                        )
-                    )
-                )
-            )
-        )
-    FROM monuments AS m
-    JOIN monument_x_reason AS mxr ON mxr.monument_id = m.id
-    JOIN monument_reason AS mr ON mxr.reason_id = mr.id
-    JOIN vg250gem AS v ON ST_Within(ST_GeomFromEWKB(m.wkb_geometry), ST_GeomFromEWKB(v.wkb_geometry))
-    WHERE LOWER(v.gen) = %s
-    """
+        ST_AsGeoJSON(m.wkb_geometry, 15)::jsonb AS geojson,
+        m.object_id,
+        m.street,
+        m.housenumber,
+        m.postcode,
+        m.city,
+        m.image_url,
+        m.designation,
+        m.description,
+        m.monument_type,
+        r.reason_labels AS monument_reason
+    FROM
+        sh_monument AS m
+    LEFT JOIN
+        monument_reasons AS r
+    ON
+        m.id = r.monument_id
+    WHERE
+        m.id = %s
+    '''
 
-    monuments = []
-
-    cur.execute(sql, (gen,))
+    cur.execute(sql, (object_id,))
     rows = cur.fetchall()
 
     return rows
 
 
 @click.command()
-@click.argument('gen')
-def main(gen):
+@click.argument('object_id')
+def main(object_id):
     cur = conn.cursor()
 
-    monuments = get_monumets(cur, gen.lower())
+    rows = get_monumet(cur, object_id)
 
-    with open(f'{gen}.geojson', 'w') as f:
-        json.dump(monuments[0][0], f)
+    if len(rows) > 0:
+        print(rows)
 
 
 if __name__ == '__main__':
