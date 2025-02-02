@@ -3,9 +3,6 @@ import 'leaflet.markercluster'
 
 import 'leaflet/dist/leaflet.css'
 
-import monuments from 'url:../data/stadt-flensburg-denkmalschutz.geojson'
-import districts from 'url:../data/flensburg_stadtteile.geojson'
-
 import markerDefault from 'url:../static/marker-icon-default.webp'
 import markerSelected from 'url:../static/marker-icon-active.webp'
 
@@ -44,66 +41,29 @@ const layerStyle = {
 
 
 let previousSelectedMarker = null
+let currentLayer = null
+
+const markerClusterGroup = L.markerClusterGroup({
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 18
+})
+
 
 const center = [54.79443515, 9.43205485]
 
-var map = L.map('map', {
+
+const map = L.map('map', {
   zoomControl: false
 }).setView(center, 13)
 
-var zoomControl = L.control.zoom({
+
+let zoomControl = L.control.zoom({
   position: 'bottomright'
 }).addTo(map)
 
-L.tileLayer('https://tiles.oklabflensburg.de/sgm/{z}/{x}/{y}.png', {
-  maxZoom: 20,
-  tileSize: 256,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map)
-
-
-/*
-window.addEventListener('popstate', (event) => {
-  if (event.state !== null && event.state.screen !== 'about') {
-    document.querySelector('#detailImage').innerHTML = ''
-    document.querySelector('#detailList').innerHTML = ''
-    document.querySelector('#sidebarContent').classList.remove('hidden')
-    document.querySelector('#about').classList.add('hidden')
-
-    map.setView(event.state.latlng, 19)
-    renderFeatureDetails(event.state.feature)
-  } else {
-    const latlng = new L.latLng(center[0], center[1])
-    document.querySelector('#about').classList.remove('hidden')
-    document.querySelector('#sidebarContent').classList.add('hidden')
-    map.setView(latlng, 13)
-  }
-
-  //previousSelectedMarker.setIcon(defaultIcon)
-})
-*/
-
-
-fetch(monuments, {
-  method: 'GET'
-}).then((response) => response.json()).then((data) => {
-  marker(data)
-}).catch(function (error) {
-  console.log(error)
-})
-
-
-fetch(districts, {
-  method: 'GET'
-}).then((response) => response.json()).then((data) => {
-  addDistrictsLayer(data)
-}).catch(function (error) {
-  console.log(error)
-})
-
 
 function updateScreen(screen) {
-  const title = 'Stadtplan der Denkmalliste Flensburg'
+  const title = 'Stadtplan der Denkmalkarte Schleswig-Holstein'
 
   if (screen === 'home') {
     document.querySelector('title').innerHTML = title
@@ -113,33 +73,45 @@ function updateScreen(screen) {
 
 
 function fetchBlob(url, designation) {
-  fetch(url, {
-    method: 'get',
-    mode: 'cors'
-  }).then((response) => {
-    if (response.ok) {
-      response.blob().then((blob) => {
-        const imageUrl = URL.createObjectURL(blob)
-        const imageElement = document.createElement('img')
-        imageElement.src = imageUrl
-        imageElement.setAttribute('alt', designation)
+  if (!url || typeof url !== 'string') {
+    console.error('Invalid URL passed to fetchBlob:', url)
+    return
+  }
 
-        const divElement = document.createElement('div')
-        divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
-        divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
+  fetch(url, { method: 'get', mode: 'cors' })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn(`${url} returned HTTP status code ${response.status}`)
+        return null
+      }
+      return response.blob()
+    })
+    .then((blob) => {
+      if (!blob) {
+        console.error('Failed to retrieve image blob from response')
+        return
+      }
 
-        const container = document.querySelector('#detailImage')
-        container.appendChild(imageElement)
-        container.appendChild(divElement)
-      })
-    }
-    else {
-      const debugLog = `${url} returned http status code ${response.status}`
-      console.debug(debugLog)
-    }
-  }).catch((error) => {
-    console.error(error)
-  })
+      const imageUrl = URL.createObjectURL(blob)
+      const imageElement = document.createElement('img')
+      imageElement.src = imageUrl
+      imageElement.setAttribute('alt', designation || 'Denkmalschutz')
+
+      const divElement = document.createElement('div')
+      divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
+      divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
+
+      const container = document.querySelector('#detailImage')
+
+      if (!container) {
+        console.error('Element #detailImage not found')
+        return
+      }
+
+      container.appendChild(imageElement)
+      container.appendChild(divElement)
+    })
+    .catch((error) => console.error('Error in fetchBlob:', error))
 }
 
 
@@ -157,60 +129,122 @@ function capitalizeEachWord(str) {
 }
 
 
-function renderFeatureDetails(feature) {
-  const slug = feature.properties.slug
-  const street = feature.properties.street
-  const housenumber = feature.properties.housenumber
-  const postcode = feature.properties.postcode
-  const city = feature.properties.city
-  const monument_type = feature.properties.monument_type
-  const description = feature.properties.description
-  const designation = feature.properties.designation
-  const objectId = feature.properties.object_id
-
-  const imageUrl = `https://opendata.schleswig-holstein.de/data/denkmalpflege/fotos/${objectId}.jpg`
-  fetchBlob(imageUrl, designation)
-
-  let reasons = feature.properties.reasons
-  let scope = feature.properties.scope
-
-  if (Array.isArray(scope)) {
-    scope = scope.join(', ')
+function isValidUrl(string) {
+  try {
+    const url = new URL(string)
+    return url.protocol === 'http:' || url.protocol === 'https:'
   }
-
-  if (Array.isArray(reasons)) {
-    reasons = reasons.join(', ')
+  catch (_) {
+    return false
   }
+}
 
-  const title = `${capitalizeEachWord(slug)} - Denkmalliste Flensburg`
+
+function renderMonumentMeta(data) {
+  const slug = data.slug
+  const street = data.street
+  const housenumber = data.housenumber
+  const postcode = data.postcode
+  const city = data.city
+  const monumentType = data.monument_type
+  const description = data.description
+  const designation = data.designation
+  const objectId = data.object_id
+  const monumentReason = data.monument_reason
+  const monumentScope = data.monument_scope
+
+  history.pushState({ 'screen': slug }, '', slug)
+  window.dispatchEvent(new Event('popstate'))
+
+  const title = `${capitalizeEachWord(slug)} - Digitale Denkmalkarte`
 
   document.querySelector('title').innerHTML = title
   document.querySelector('meta[property="og:title"]').setAttribute('content', title)
   document.querySelector('meta[property="og:url"]').setAttribute('content', `${window.location.href}${slug}`)
-
 
   let detailOutput = ''
 
   detailOutput += `<li class="pb-2 text-xl lg:text-2xl"><strong>${designation}</strong></li>`
   detailOutput += `<li class="last-of-type:pb-2 py-1 mb-3">${street} ${housenumber}<br>${postcode} ${city}</li>`
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Beschreibung</strong><br>${description}</li>`
-  detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${scope}</li>`
-  detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Begründung</strong><br>${reasons}</li>`
-  detailOutput += `<li class="pt-2"><strong>Merkmal</strong><br>${monument_type}</li>`
 
-  document.querySelector('#sidebarContent').classList.remove('hidden')
-  document.querySelector('#detailList').innerHTML = detailOutput
+  if (monumentScope) {
+    detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${monumentScope}</li>`
+  }
+
+  if (monumentReason) {
+    detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Begründung</strong><br>${monumentReason}</li>`
+  }
+
+  detailOutput += `<li class="pt-2"><strong>Merkmal</strong><br>${monumentType}</li>`
+
+  const detailList = document.querySelector('#detailList')
 
   document.querySelector('title').innerHTML = title
   document.querySelector('meta[property="og:title"]').setAttribute('content', title)
+
+  detailList.innerHTML = detailOutput
+  document.querySelector('#about').classList.add('hidden')
+  document.querySelector('#sidebar').classList.add('absolute')
+  document.querySelector('#sidebar').classList.remove('hidden')
+  document.querySelector('#sidebarContent').classList.remove('hidden')
+  document.querySelector('#sidebarCloseWrapper').classList.remove('block')
 }
 
 
-function marker(data) {
-  const markers = L.markerClusterGroup({
-    zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 18
-  })
+function cleanMonumentMeta() {
+  document.querySelector('#detailList').innerHTML = ''
+  document.querySelector('#detailImage').innerHTML = ''
+  document.querySelector('#sidebar').classList.add('hidden')
+  document.querySelector('#sidebar').classList.remove('absolute')
+  document.querySelector('#about').classList.remove('hidden')
+  document.querySelector('#sidebarContent').classList.add('hidden')
+}
+
+
+async function fetchJsonData(url) {
+  try {
+    const response = await fetch(url, { method: 'GET' })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`)
+    }
+
+    return await response.json()
+  }
+  catch (error) {
+    console.error('Fetch error:', error)
+
+    return null
+  }
+}
+
+
+// https://api.oklabflensburg.de/monument/v1/geometries
+async function fetchMonumentPointsByBounds() {
+  const bounds = map.getBounds()
+  const bbox = {
+    xmin: bounds.getWest(),
+    ymin: bounds.getSouth(),
+    xmax: bounds.getEast(),
+    ymax: bounds.getNorth()
+  }
+
+  const url = `https://api.oklabflensburg.de/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
+
+  const data = await fetchJsonData(url)
+
+  addMonumentsToMap(data)
+}
+
+
+function addMonumentsToMap(data) {
+  if (currentLayer !== null) {
+    currentLayer.removeLayer(currentLayer)
+  }
+  else {
+    currentLayer = markerClusterGroup
+  }
 
   const geojsonGroup = L.geoJSON(data, {
     onEachFeature(feature, layer) {
@@ -221,47 +255,40 @@ function marker(data) {
         document.querySelector('#about').classList.add('hidden')
         layer.setIcon(selectedIcon)
         previousSelectedMarker = layer
-        renderFeatureDetails(feature)
+        renderMonumentMeta(feature)
         map.setView(layer._latlng, 19)
       }
 
-      layer.on('click', function (e) {
-        document.getElementById('sidebar').scrollTo({
-          top: 0,
-          left: 0
-        })
+      layer.on('click', async function (e) {
+        cleanMonumentMeta()
 
-        const currentZoom = map.getZoom()
-
-        if (currentZoom < 15) {
-          map.setView(e.latlng, 15)
+        if (!e || !e.target || !e.target.feature) {
+          console.error('Invalid event object:', e)
+          return
         }
 
-        document.querySelector('#detailImage').innerHTML = ''
-        document.querySelector('#detailList').innerHTML = ''
-        document.querySelector('#map').classList.add('h-4/6', 'sm:h-screen')
-        document.querySelector('#map').classList.remove('h-screen')
-        document.querySelector('#sidebar').classList.add('h-2/6', 'sm:relative', 'sm:h-screen')
-        document.querySelector('#sidebarCloseWrapper').classList.remove('hidden')
-        document.querySelector('#sidebarHeader').classList.add('hidden')
-        document.querySelector('#about').classList.add('hidden')
+        const url = `https://api.oklabflensburg.de/monument/v1/details?monument_id=${e.target.feature.id}`
 
-        map.setView(e.latlng, 19)
-        renderFeatureDetails(e.target.feature)
-        history.pushState({ 'screen': slug }, '', slug)
-        window.dispatchEvent(new Event('popstate'))
+        const monumentDetailData = await fetchJsonData(url)
+
+        if (!monumentDetailData) {
+          console.error('Error: No data returned from fetchJsonData')
+          return
+        }
+
+        if (!Array.isArray(monumentDetailData)) {
+          console.error('Error: Data is not array', monumentDetailData)
+          return
+        }
+        if (isValidUrl(monumentDetailData[0].image_url)) {
+          fetchBlob(monumentDetailData[0].image_url, monumentDetailData[0].designation)
+        }
+
+        renderMonumentMeta(monumentDetailData[0])
       })
     },
     pointToLayer(feature, latlng) {
-      const street = feature.properties.street
-      const housenumber = feature.properties.housenumber
-      const designation = feature.properties.designation
-
-      let label = designation
-
-      if (street.length > 0) {
-        label = `${street} ${housenumber}`
-      }
+      const label = feature.properties.label
 
       return L.marker(latlng, { icon: defaultIcon }).bindTooltip(label, {
         permanent: false,
@@ -270,8 +297,7 @@ function marker(data) {
     }
   })
 
-
-  markers.on('click', function (a) {
+  currentLayer.on('click', function (a) {
     if (previousSelectedMarker !== null) {
       previousSelectedMarker.setIcon(defaultIcon)
     }
@@ -280,8 +306,8 @@ function marker(data) {
     previousSelectedMarker = a.layer
   })
 
-  markers.addLayer(geojsonGroup)
-  map.addLayer(markers)
+  currentLayer.addLayer(geojsonGroup)
+  map.addLayer(currentLayer)
 }
 
 
@@ -309,6 +335,30 @@ document.querySelector('#sidebarCloseButton').addEventListener('click', function
   document.querySelector('#sidebarCloseWrapper').classList.add('hidden')
 
   history.replaceState({ screen: 'home' }, '', '/')
+})
+
+
+document.addEventListener('DOMContentLoaded', function () {
+  L.tileLayer('https://tiles.oklabflensburg.de/sgm/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    tileSize: 256,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="dc:rights">OpenStreetMap</a> contributors'
+  }).addTo(map)
+
+  map.on('moveend', fetchMonumentPointsByBounds)
+
+  fetchMonumentPointsByBounds()
+
+  map.on('click', function (e) {
+    cleanMonumentMeta()
+  })
+
+  document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
+    e.preventDefault()
+    cleanMonumentMeta()
+
+    history.replaceState({ screen: 'home' }, '', '/')
+  })
 })
 
 
