@@ -98,11 +98,11 @@ def defuck(line):
 
     for m in matches:
         streetname = m[0].strip()
-        house_numbers = m[1].split(',')
-        house_numbers = [x.strip() for x in house_numbers if re.match(r'[\d+]', x.strip())]
+        housenumbers = m[1].split(',')
+        housenumbers = [x.strip() for x in housenumbers if re.match(r'[\d+]', x.strip())]
 
-        for house_number in house_numbers:
-            hn = house_number.strip()
+        for housenumber in housenumbers:
+            hn = housenumber.strip()
             addr = f'{streetname} {hn}'
 
             addresses.append(addr)
@@ -163,7 +163,7 @@ def main(url):
                     o['reasons'] = o.pop('Begründung')
 
                 if 'Schutzumfang' in o:
-                    o['scope'] = o.pop('Schutzumfang')
+                    o['scopes'] = o.pop('Schutzumfang')
 
                 o['street'] = loc['street']
                 o['housenumber'] = loc['housenumber']

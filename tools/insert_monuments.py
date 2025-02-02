@@ -67,6 +67,26 @@ def insert_reason(cur, monument_id, reason_label):
         pass
 
 
+def insert_scope(cur, monument_id, scope_label):
+    scope_sql = 'INSERT INTO sh_monument_scope (label) VALUES (%s) RETURNING id'
+
+    try:
+        cur.execute(scope_sql, (scope_label,))
+    except UniqueViolation as e:
+        query_scope_sql = 'SELECT id FROM sh_monument_scope WHERE label = %s'
+        cur.execute(query_scope_sql, (scope_label,))
+
+    scope_id = cur.fetchone()[0]
+
+    monument_x_scope_sql = 'INSERT INTO sh_monument_x_scope (monument_id, scope_id) VALUES (%s, %s)'
+
+    try:
+        cur.execute(monument_x_scope_sql, (monument_id, scope_id))
+    except NotNullViolation as e:
+        pass
+
+
+
 def insert_object(cur, properties, geometry):
     object_id = properties['object_id']
     street = properties['street']
@@ -78,7 +98,7 @@ def insert_object(cur, properties, geometry):
     designation = properties['designation']
     image_url = properties['image_url']
     reasons = properties['reasons']
-    scope = properties['scope']
+    scopes = properties['scopes']
     slug = properties['slug']
 
     g = Point(shape(geometry))
@@ -98,6 +118,9 @@ def insert_object(cur, properties, geometry):
 
     for reason in reasons:
         insert_reason(cur, monument_id, reason)
+
+    for scope in scopes:
+        insert_scope(cur, monument_id, scope)
 
 
 if __name__ == '__main__':

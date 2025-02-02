@@ -69,7 +69,7 @@ def main(src):
             'image_url': o['url'] if 'url' in o else '',
             'description': o['description'],
             'reasons': o['reasons'] if 'reasons' in o else [],
-            'scope': o['scope'] if 'scope' in o else [],
+            'scopes': o['scopes'] if 'scopes' in o else [],
             'street': street,
             'housenumber': housenumber,
             'postcode': o['postcode'] if o['postcode'] is not None else '',
