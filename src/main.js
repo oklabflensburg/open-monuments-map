@@ -193,6 +193,8 @@ function renderMonumentMeta(data) {
 
 
 function cleanMonumentMeta() {
+  history.replaceState({ screen: 'home' }, '', '/')
+
   document.querySelector('#detailList').innerHTML = ''
   document.querySelector('#detailImage').innerHTML = ''
   document.querySelector('#sidebar').classList.add('hidden')
@@ -356,8 +358,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
     e.preventDefault()
     cleanMonumentMeta()
-
-    history.replaceState({ screen: 'home' }, '', '/')
   })
 })
 
@@ -370,6 +370,7 @@ window.onload = () => {
   }
   else if (!history.state && path !== '/') {
     history.replaceState({ screen: path }, '', path)
+    fetchMonumentPointsByBounds()
   }
 }
 
