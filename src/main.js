@@ -45,16 +45,17 @@ let currentLayer = null
 
 const markerClusterGroup = L.markerClusterGroup({
   zoomToBoundsOnClick: true,
-  disableClusteringAtZoom: 18
+  disableClusteringAtZoom: 19
 })
 
 
 const center = [54.79443515, 9.43205485]
+const zoomLevelInitial = 13
 
 
 const map = L.map('map', {
   zoomControl: false
-}).setView(center, 13)
+}).setView(center, zoomLevelInitial)
 
 
 let zoomControl = L.control.zoom({
@@ -222,6 +223,17 @@ async function fetchJsonData(url) {
 }
 
 
+async function fetchMonumentDetailBySlug(slug) {
+  const url = `https://api.oklabflensburg.de/monument/v1/geometry?slug=${slug}`
+
+  const data = await fetchJsonData(url)
+  const zoomLevelDetail = 17
+
+  addMonumentsToMap(data, zoomLevelDetail)
+  fetchMonumentPointsByBounds()
+}
+
+
 // https://api.oklabflensburg.de/monument/v1/geometries
 async function fetchMonumentPointsByBounds() {
   const bounds = map.getBounds()
@@ -231,16 +243,17 @@ async function fetchMonumentPointsByBounds() {
     xmax: bounds.getEast(),
     ymax: bounds.getNorth()
   }
+  console.log(bbox)
 
   const url = `https://api.oklabflensburg.de/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
 
   const data = await fetchJsonData(url)
 
-  addMonumentsToMap(data)
+  addMonumentsToMap(data, zoomLevelInitial)
 }
 
 
-function addMonumentsToMap(data) {
+function addMonumentsToMap(data, zoomLevel) {
   if (currentLayer !== null) {
     currentLayer.removeLayer(currentLayer)
   }
@@ -258,7 +271,7 @@ function addMonumentsToMap(data) {
         layer.setIcon(selectedIcon)
         previousSelectedMarker = layer
         renderMonumentMeta(feature)
-        map.setView(layer._latlng, 19)
+        map.setView(layer._latlng, zoomLevel)
       }
 
       layer.on('click', async function (e) {
@@ -364,15 +377,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.onload = () => {
   const path = decodeURIComponent(window.location.pathname)
+  const slug = path.slice(1)
 
   if (!history.state && path === '/') {
     history.replaceState({ screen: 'home' }, '', '/')
   }
   else if (!history.state && path !== '/') {
     history.replaceState({ screen: path }, '', path)
-    fetchMonumentPointsByBounds()
+    fetchMonumentDetailBySlug(slug)
   }
 }
+
 
 // Handle popstate event when navigating back/forward in the history
 window.addEventListener('popstate', (event) => {
