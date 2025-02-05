@@ -28,30 +28,22 @@ const selectedIcon = L.icon({
   tooltipAnchor: [0, -37]
 })
 
+// Store markers by slug
+const markerMap = new Map()
 
-const layerStyle = {
-  standard: {
-    color: '#fff',
-    fillColor: '#6ed0ef',
-    fillOpacity: 0.4,
-    opacity: 0.6,
-    weight: 3
-  }
-}
-
-
+// Flag to ensure fitBounds is called only once
+let isBoundsSet = false
 let previousSelectedMarker = null
 let currentLayer = null
 
-const markerClusterGroup = L.markerClusterGroup({
-  zoomToBoundsOnClick: true,
-  disableClusteringAtZoom: 19
-})
-
-
 const center = [54.79443515, 9.43205485]
 const zoomLevelInitial = 13
+const addMonumentsByBounds = false
 
+const markerClusterGroup = L.markerClusterGroup({
+  zoomToBoundsOnClick: true,
+  disableClusteringAtZoom: 18
+})
 
 const map = L.map('map', {
   zoomControl: false
@@ -64,11 +56,15 @@ let zoomControl = L.control.zoom({
 
 
 function updateScreen(screen) {
-  const title = 'Stadtplan der Denkmalkarte Schleswig-Holstein'
+  const title = 'Digitale Denkmalkarte für Schleswig-Holstein'
 
   if (screen === 'home') {
-    document.querySelector('title').innerHTML = title
+    document.title = title
     document.querySelector('meta[property="og:title"]').setAttribute('content', title)
+  }
+  else {
+    document.title = `${screen} - ${title}`
+    document.querySelector('meta[property="og:title"]').setAttribute('content', `${screen} - ${title}`)
   }
 }
 
@@ -108,18 +104,14 @@ function fetchBlob(url, designation) {
         console.error('Element #detailImage not found')
         return
       }
+      else {
+        container.innerHTML = ''
+      }
 
       container.appendChild(imageElement)
       container.appendChild(divElement)
     })
     .catch((error) => console.error('Error in fetchBlob:', error))
-}
-
-
-function addDistrictsLayer(data) {
-  L.geoJson(data, {
-    style: layerStyle.standard
-  }).addTo(map)
 }
 
 
@@ -153,9 +145,6 @@ function renderMonumentMeta(data) {
   const objectId = data.object_id
   const monumentReason = data.monument_reason
   const monumentScope = data.monument_scope
-
-  history.pushState({ 'screen': slug }, '', slug)
-  window.dispatchEvent(new Event('popstate'))
 
   const title = `${capitalizeEachWord(slug)} - Digitale Denkmalkarte`
 
@@ -194,8 +183,6 @@ function renderMonumentMeta(data) {
 
 
 function cleanMonumentMeta() {
-  history.replaceState({ screen: 'home' }, '', '/')
-
   document.querySelector('#detailList').innerHTML = ''
   document.querySelector('#detailImage').innerHTML = ''
   document.querySelector('#sidebar').classList.add('hidden')
@@ -224,13 +211,78 @@ async function fetchJsonData(url) {
 
 
 async function fetchMonumentDetailBySlug(slug) {
-  const url = `https://api.oklabflensburg.de/monument/v1/geometry?slug=${slug}`
+  const url = `https://api.oklabflensburg.de/monument/v1/detail?slug=${slug}`
 
   const data = await fetchJsonData(url)
   const zoomLevelDetail = 17
 
-  addMonumentsToMap(data, zoomLevelDetail)
-  fetchMonumentPointsByBounds()
+  const geoJsonData = {
+    'type': 'FeatureCollection',
+    'features': [{
+      'type': 'Feature',
+      'id': data[0]['id'],
+      'geometry': {
+        'type': data[0]['geojson']['type'],
+        'coordinates': data[0]['geojson']['coordinates']
+      },
+      'properties': {
+        'label': data[0]['label'],
+        'slug': data[0]['slug']
+      }
+    }]
+  }
+
+  if (isValidUrl(data[0].image_url)) {
+    fetchBlob(data[0].image_url, data[0].designation)
+  }
+
+  renderMonumentMeta(data[0])
+  addMonumentsToMap(geoJsonData, true, zoomLevelDetail)
+
+  const matchingMarker = findMarkerById(data[0]['id'])
+
+  if (matchingMarker) {
+    setSelectedMarker(matchingMarker)
+  }
+}
+
+
+async function fetchMonumentDetailById(id) {
+  const url = `https://api.oklabflensburg.de/monument/v1/details?monument_id=${id}`
+
+  const data = await fetchJsonData(url)
+  const zoomLevelDetail = 17
+
+  const geoJsonData = {
+    'type': 'FeatureCollection',
+    'features': [{
+      'type': 'Feature',
+      'id': data[0]['id'],
+      'geometry': {
+        'type': data[0]['geojson']['type'],
+        'coordinates': data[0]['geojson']['coordinates']
+      },
+      'properties': {
+        'label': data[0]['label'],
+        'slug': data[0]['slug']
+      }
+    }]
+  }
+
+  if (isValidUrl(data[0].image_url)) {
+    fetchBlob(data[0].image_url, data[0].designation)
+  }
+
+  navigateTo(data[0]['slug'])
+  renderMonumentMeta(data[0])
+  addMonumentsToMap(geoJsonData, addMonumentsByBounds, zoomLevelDetail)
+
+
+  const matchingMarker = findMarkerById(data[0]['id'])
+
+  if (matchingMarker) {
+    setSelectedMarker(matchingMarker)
+  }
 }
 
 
@@ -243,17 +295,17 @@ async function fetchMonumentPointsByBounds() {
     xmax: bounds.getEast(),
     ymax: bounds.getNorth()
   }
-  console.log(bbox)
 
   const url = `https://api.oklabflensburg.de/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
 
   const data = await fetchJsonData(url)
 
-  addMonumentsToMap(data, zoomLevelInitial)
+  addMonumentsToMap(data, addMonumentsByBounds, zoomLevelInitial)
 }
 
 
-function addMonumentsToMap(data, zoomLevel) {
+function addMonumentsToMap(data, fetchAdditionalMonuments, zoomLevel) {
+  // Remove the existing layer
   if (currentLayer !== null) {
     currentLayer.removeLayer(currentLayer)
   }
@@ -263,16 +315,10 @@ function addMonumentsToMap(data, zoomLevel) {
 
   const geojsonGroup = L.geoJSON(data, {
     onEachFeature(feature, layer) {
-      const slug = String(feature.properties.slug)
-      const path = decodeURIComponent(window.location.pathname)
+      const id = feature.id
 
-      if (slug === path.slice(1)) {
-        document.querySelector('#about').classList.add('hidden')
-        layer.setIcon(selectedIcon)
-        previousSelectedMarker = layer
-        renderMonumentMeta(feature)
-        map.setView(layer._latlng, zoomLevel)
-      }
+      // Store marker reference in markerMap
+      markerMap.set(id, layer)
 
       layer.on('click', async function (e) {
         cleanMonumentMeta()
@@ -282,47 +328,27 @@ function addMonumentsToMap(data, zoomLevel) {
           return
         }
 
-        const url = `https://api.oklabflensburg.de/monument/v1/details?monument_id=${e.target.feature.id}`
+        await fetchMonumentDetailById(id)
 
-        const monumentDetailData = await fetchJsonData(url)
-
-        if (!monumentDetailData) {
-          console.error('Error: No data returned from fetchJsonData')
-          return
-        }
-
-        if (!Array.isArray(monumentDetailData)) {
-          console.error('Error: Data is not array', monumentDetailData)
-          return
-        }
-        if (isValidUrl(monumentDetailData[0].image_url)) {
-          fetchBlob(monumentDetailData[0].image_url, monumentDetailData[0].designation)
-        }
-
-        renderMonumentMeta(monumentDetailData[0])
+        // Set selected icon when a marker is clicked
+        setSelectedMarker(e.target)
       })
     },
     pointToLayer(feature, latlng) {
-      const label = feature.properties.label
-
-      return L.marker(latlng, { icon: defaultIcon }).bindTooltip(label, {
-        permanent: false,
-        direction: 'top'
-      }).openTooltip()
+      return L.marker(latlng, { icon: defaultIcon })
+        .bindTooltip(feature.properties.label, { permanent: false, direction: 'top' })
+        .openTooltip()
     }
-  })
-
-  currentLayer.on('click', function (a) {
-    if (previousSelectedMarker !== null) {
-      previousSelectedMarker.setIcon(defaultIcon)
-    }
-
-    a.layer.setIcon(selectedIcon)
-    previousSelectedMarker = a.layer
   })
 
   currentLayer.addLayer(geojsonGroup)
   map.addLayer(currentLayer)
+
+  // Fit map bounds
+  if (!isBoundsSet) {
+    map.fitBounds(currentLayer.getBounds(), { maxZoom: zoomLevel })
+    isBoundsSet = true
+  }
 }
 
 
@@ -342,62 +368,90 @@ function handleWindowSize() {
 }
 
 
-document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
-  e.preventDefault()
-
-  document.querySelector('#sidebar').classList.add('sm:h-screen')
-  document.querySelector('#sidebar').classList.remove('absolute', 'h-screen')
-  document.querySelector('#sidebarCloseWrapper').classList.add('hidden')
-
-  history.replaceState({ screen: 'home' }, '', '/')
-})
+// Find marker by slug
+function findMarkerById(slug) {
+  return markerMap.get(slug) || null
+}
 
 
-document.addEventListener('DOMContentLoaded', function () {
+// Set the selected marker
+function setSelectedMarker(marker) {
+  if (previousSelectedMarker !== null) {
+    previousSelectedMarker.setIcon(defaultIcon) // Reset previous marker
+  }
+
+  marker.setIcon(selectedIcon)
+  previousSelectedMarker = marker
+}
+
+
+// Function to handle navigation changes
+function navigateTo(screen, updateHistory = true) {
+  const currentState = history.state
+
+  // Avoid pushing a duplicate entry
+  if (currentState && currentState.screen === screen) {
+    return
+  }
+
+  if (updateHistory) {
+    history.pushState({ screen }, '', screen === 'home' ? '/' : `/${screen}`)
+  }
+
+  updateScreen(screen)
+}
+
+
+// Handle initial page load
+window.onload = () => {
+  // Initialize the map and handle events after DOM is ready
   L.tileLayer('https://tiles.oklabflensburg.de/sgm/{z}/{x}/{y}.png', {
     maxZoom: 20,
     tileSize: 256,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="dc:rights">OpenStreetMap</a> contributors'
   }).addTo(map)
 
+  // Attach event listeners
   map.on('moveend', fetchMonumentPointsByBounds)
+  map.on('click', cleanMonumentMeta)
 
-  fetchMonumentPointsByBounds()
-
-  map.on('click', function (e) {
-    cleanMonumentMeta()
-  })
-
+  // Sidebar close button handler
   document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
     e.preventDefault()
     cleanMonumentMeta()
   })
-})
 
-
-window.onload = () => {
+  // Get the current path and determine screen
   const path = decodeURIComponent(window.location.pathname)
-  const slug = path.slice(1)
+  const screen = path === '/' ? 'home' : path.slice(1) // Remove leading "/"
 
-  if (!history.state && path === '/') {
-    history.replaceState({ screen: 'home' }, '', '/')
+  // Ensure history state is set correctly
+  if (!history.state) {
+    history.replaceState({ screen }, '', path)
   }
-  else if (!history.state && path !== '/') {
-    history.replaceState({ screen: path }, '', path)
-    fetchMonumentDetailBySlug(slug)
+
+  updateScreen(screen)
+
+  // Load content based on the screen
+  if (screen === 'home') {
+    fetchMonumentPointsByBounds()
+  }
+  else {
+    fetchMonumentDetailBySlug(screen)
   }
 }
 
-
-// Handle popstate event when navigating back/forward in the history
+// Handle back/forward button navigation
 window.addEventListener('popstate', (event) => {
-  if (event.state && event.state.screen === 'home') {
-    document.querySelector('#sidebar').classList.add('sm:h-screen')
-    document.querySelector('#sidebar').classList.remove('absolute', 'h-screen')
-    document.querySelector('#sidebarCloseWrapper').classList.add('hidden')
+  // If event.state exists, use it; otherwise, determine from pathname
+  const screen = event.state && event.state.screen ? event.state.screen : 'home'
+
+  if (screen === 'home') {
+    cleanMonumentMeta()
+    fetchMonumentPointsByBounds()
   }
   else {
-    updateScreen('home')
+    fetchMonumentDetailBySlug(screen)
   }
 })
 
