@@ -5,6 +5,7 @@ import click
 import psycopg2
 import json
 import multiprocessing
+from datetime import datetime
 
 from shapely import wkb
 from shapely.ops import transform
@@ -37,13 +38,11 @@ except Exception as e:
 def main(file):
     cur = conn.cursor()
 
-    '''
     with open(Path(file), 'r') as f:
         features = json.loads(f.read())['features']
 
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
         pool.map(process_feature, features)
-    '''
 
     create_processed_table(cur)
 
@@ -89,6 +88,17 @@ def insert_object(cur, properties, geometry):
     photo_link = properties['FotoURL']
     detail_link = properties['Details']
     last_update = properties['Stand']
+
+    # Ensure `last_update` is a correct ISO date
+    try:
+        # Attempt to parse as ISO format
+        last_update = datetime.fromisoformat(last_update).isoformat()
+    except ValueError:
+        try:
+            # Attempt to parse common non-ISO formats (e.g., DD.MM.YYYY)
+            last_update = datetime.strptime(last_update, "%d.%m.%Y").isoformat()
+        except ValueError:
+            print(f"Invalid date format for 'Stand': {last_update}. Skipping entry.")
 
     transformer = Transformer.from_crs(
         "EPSG:25832", "EPSG:4326", always_xy=True)
