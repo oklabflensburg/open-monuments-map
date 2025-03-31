@@ -306,12 +306,12 @@ window.onload = async () => {
   updateScreen(screen)
 
   if (screen === 'home') {
-    map.setView(center, zoomLevelInitial) // Use default center for home
+    map.setView(center, zoomLevelInitial)
     fetchMonumentPointsByBounds()
   } else {
     const data = await fetchMonumentDetailBySlug(screen)
     if (data && data[0] && data[0].geojson && data[0].geojson.coordinates) {
-      const [lng, lat] = data[0].geojson.coordinates // Use slug coordinates as center
+      const [lng, lat] = data[0].geojson.coordinates
       map.setView([lat, lng], zoomLevelDetail)
     }
   }
