@@ -1,58 +1,91 @@
 <!DOCTYPE html>
 <html prefix="og: https://ogp.me/ns#" lang="de">
+
 <head>
-    <title>Digitale Denkmalkarte für Schleswig-Holstein</title>
-    <link rel="canonical" href="https://denkmalschutz-flensburg.de">
-    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-    <link href="./main.css" rel="stylesheet">
+  <title>Digitale Denkmalkarte für Schleswig-Holstein</title>
+  <link rel="canonical" href="https://denkmalschutz-flensburg.de">
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link href="./main.css" rel="stylesheet">
 
-    <meta charset="utf-8">
-    <meta property="og:locale" content="de_DE">
-    <meta property="og:title" content="Interaktive Denkmalkarte für Schleswig-Holstein">
-    <meta property="og:site_name" content="Digitale Denkmalkarte für Schleswig-Holstein">
-    <meta property="og:url" content="https://denkmalschutz-flensburg.de">
-    <meta property="og:description" content="Interaktive Denkmalkarte für Schleswig-Holstein – Entdecken Sie denkmalgeschützte Gebäude mit Beschreibungen, Schutzumfang und historischen Details. Jetzt mehr erfahren!">
-    <meta property="og:type" content="website">
+  <meta charset="utf-8">
+  <meta property="og:locale" content="de_DE">
+  <meta property="og:title" content="Interaktive Denkmalkarte für Schleswig-Holstein">
+  <meta property="og:site_name" content="Digitale Denkmalkarte für Schleswig-Holstein">
+  <meta property="og:url" content="https://denkmalschutz-flensburg.de">
+  <meta property="og:description"
+    content="Interaktive Denkmalkarte für Schleswig-Holstein – Entdecken Sie denkmalgeschützte Gebäude mit Beschreibungen, Schutzumfang und historischen Details. Jetzt mehr erfahren!">
+  <meta property="og:type" content="website">
 
-    <meta name="description" content="Denkmalkarte für Schleswig-Holstein – entdecken Sie denkmalgeschützte Gebäude mit Beschreibung, Schutzumfang & historischen Details.">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta name="description"
+    content="Denkmalkarte für Schleswig-Holstein – entdecken Sie denkmalgeschützte Gebäude mit Beschreibung, Schutzumfang & historischen Details.">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
 </head>
 
 <body class="relative flex justify-center flex-col h-dvh w-full">
   <div class="relative sm:flex sm:flex-row w-full h-dvh overflow-hidden">
     <div class="h-dvh flex flex-col w-full xs:w-5/12 sm:w-6/12 md:w-7/12 lg:w-8/12 xl:w-9/12">
       <div id="map" class="h-[95dvh] w-full"></div>
-      <footer class="grow w-full bg-gray-200 border-t md:border-t border-gray-300 text-sm flex justify-center items-center">
-        <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./impressum.html">Impressum</a> <span class="inline-block text-gray-700 px-3">|</span> <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./impressum.html#privacypolicy">Datenschutzerklärung</a> <span class="inline-block text-gray-700 px-3">|</span> <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./lizenz.html">Lizenz</a>
+      <footer
+        class="grow w-full bg-gray-200 border-t md:border-t border-gray-300 text-sm flex justify-center items-center">
+        <a class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800"
+          href="./impressum.html">Impressum</a> <span class="inline-block text-gray-700 px-3">|</span> <a
+          class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800"
+          href="./impressum.html#privacypolicy">Datenschutzerklärung</a> <span
+          class="inline-block text-gray-700 px-3">|</span> <a
+          class="inline-block text-gray-700 hover:text-blue-800 focus:text-blue-800" href="./lizenz.html">Lizenz</a>
       </footer>
     </div>
 
-    <div id="sidebar" class="absolute left-0 bottom-0 max-h-[45dvh] sm:max-h-dvh sm:block sm:relative w-full xs:w-7/12 sm:w-6/12 md:w-5/12 lg:w-4/12 xl:w-3/12 overflow-scroll bg-gray-100 z-1200">
+    <div id="sidebar"
+      class="absolute left-0 bottom-0 max-h-[45dvh] sm:max-h-dvh sm:block sm:relative w-full xs:w-7/12 sm:w-6/12 md:w-5/12 lg:w-4/12 xl:w-3/12 overflow-scroll bg-gray-100 z-1200">
       <div id="sidebarCloseWrapper" class="absolute right-3 top-3 z-1300 sm:hidden">
-        <a id="sidebarCloseButton" class="flex justify-center items-center relative inline-block shadow-md bg-gray-200 text-sky-900 hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-300 rounded-full w-8 h-8 cursor-pointer font-bold" role="button">
-          <svg class="h-5 w-5 inline" viewBox="0 0 50 50" fill="currentColor" xmlns="http://www.w3.org/2000/svg" stroke-width="0">
-            <path d="M 9.15625 6.3125 L 6.3125 9.15625 L 22.15625 25 L 6.21875 40.96875 L 9.03125 43.78125 L 25 27.84375 L 40.9375 43.78125 L 43.78125 40.9375 L 27.84375 25 L 43.6875 9.15625 L 40.84375 6.3125 L 25 22.15625 Z" />
+        <a id="sidebarCloseButton"
+          class="flex justify-center items-center relative inline-block shadow-md bg-gray-200 text-sky-900 hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-300 rounded-full w-8 h-8 cursor-pointer font-bold"
+          role="button">
+          <svg class="h-5 w-5 inline" viewBox="0 0 50 50" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
+            stroke-width="0">
+            <path
+              d="M 9.15625 6.3125 L 6.3125 9.15625 L 22.15625 25 L 6.21875 40.96875 L 9.03125 43.78125 L 25 27.84375 L 40.9375 43.78125 L 43.78125 40.9375 L 27.84375 25 L 43.6875 9.15625 L 40.84375 6.3125 L 25 22.15625 Z" />
           </svg>
         </a>
       </div>
 
       <div id="sidebarHeader" class="py-2 px-3 mb-4 lg:mb-8">
-        <h1 class="tracking-normal leading-normal font-bold text-2xl md:text-3xl lg:text-4xl mb-1">Digitale Denkmalkarte</h1>
-        <h2><a href="/" class="text-xl md:text-2xl text-gray-700 hover:text-blue-700 focus:text-blue-800" title="Stadtplan Schleswig-Holstein">Open Data Schleswig-Holstein</a></h2>
+        <h1 class="tracking-normal leading-normal font-bold text-2xl md:text-3xl lg:text-4xl mb-1">Digitale Denkmalkarte
+        </h1>
+        <h2><a href="/" class="text-xl md:text-2xl text-gray-700 hover:text-blue-700 focus:text-blue-800"
+            title="Stadtplan Schleswig-Holstein">Open Data Schleswig-Holstein</a></h2>
       </div>
 
       <div class="mt-3 md:mt-6 py-2 px-3" id="about">
         <h3 class="font-bold text-xl md:text-2xl mb-1">Wie funktioniert die Denkmalkarte?</h3>
-        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Klicken Sie auf einen Marker, um Details zu denkmalgeschützten Anlagen anzuzeigen. Bewegen Sie die Karte, um weitere Orte zu erkunden – die Daten werden automatisch geladen.</p>
+        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Klicken Sie auf einen Marker, um Details
+          zu denkmalgeschützten Anlagen anzuzeigen. Bewegen Sie die Karte, um weitere Orte zu erkunden – die Daten
+          werden automatisch geladen.</p>
         <h3 class="font-bold text-xl md:text-2xl mb-1">Wie entstand die Denkmalkarte?</h3>
-        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Die digitale Denkmalkarte für Schleswig-Holstein wurde entwickelt, um denkmalgeschützte Gebäude und ihre Merkmale interaktiv darzustellen. Die Idee entstand während eines Spaziergangs – wir wollten eine nutzerfreundliche Karte für historische Orte schaffen. Nutzen Sie unsere Denkmalkarte, um Schleswig-Holsteins Kulturerbe zu erkunden! Haben Sie Ergänzungen oder Feedback? Schreiben Sie uns gerne eine <a class="contact-mail text-blue-600 hover:text-blue-400 focus:text-blue-400" href="" target="_blank"></a>.</p>
+        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Die digitale Denkmalkarte für
+          Schleswig-Holstein wurde entwickelt, um denkmalgeschützte Gebäude und ihre Merkmale interaktiv darzustellen.
+          Die Idee entstand während eines Spaziergangs – wir wollten eine nutzerfreundliche Karte für historische Orte
+          schaffen. Nutzen Sie unsere Denkmalkarte, um Schleswig-Holsteins Kulturerbe zu erkunden! Haben Sie Ergänzungen
+          oder Feedback? Schreiben Sie uns gerne eine <a
+            class="contact-mail text-blue-600 hover:text-blue-400 focus:text-blue-400" href="" target="_blank"></a>.</p>
         <h3 class="font-bold text-xl md:text-2xl mb-1">Wie aktuell sind die Daten?</h3>
-        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Unsere Karte basiert auf der offiziellen Denkmalliste des Landesamt für Denkmalpflege Schleswig-Holstein und zeigt den Schutzstatus, Standort und weitere Details zu denkmalgeschützten Gebäuden. Die Daten werden regelmäßig über das <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege" target="_blank">Open Data Portal</a> Schleswig-Holstein aktualisiert.</p>
+        <p class="font-normal leading-normal text-md lg:text-lg mb-3 md:mb-6">Unsere Karte basiert auf der offiziellen
+          Denkmalliste des Landesamt für Denkmalpflege Schleswig-Holstein und zeigt den Schutzstatus, Standort und
+          weitere Details zu denkmalgeschützten Gebäuden. Die Daten werden regelmäßig über das <a
+            class="text-blue-600 hover:text-blue-400 focus:text-blue-400"
+            href="https://opendata.schleswig-holstein.de/organization/landesamt-fur-denkmalpflege" target="_blank">Open
+            Data Portal</a> Schleswig-Holstein aktualisiert.</p>
         <h3 class="font-bold text-xl md:text-2xl mb-1">Open Source und frei nutzbar</h3>
-        <p class="font-normal leading-normal text-md lg:text-lg">Der aktuelle Entwicklungsstand ist auf <a class="text-blue-600 hover:text-blue-400 focus:text-blue-400" href="https://github.com/oklabflensburg/open-monuments-map" target="_blank">GitHub</a> einsehbar. Die Software kann von Städten, Kommunen und Ländern kostenfrei und lizenzfrei genutzt und angepasst werden. Die Anwendung wurde von ehrenamtlichen Mitgliedern des OK Lab Flensburg entwickelt.</p>
+        <p class="font-normal leading-normal text-md lg:text-lg">Der aktuelle Entwicklungsstand ist auf <a
+            class="text-blue-600 hover:text-blue-400 focus:text-blue-400"
+            href="https://github.com/oklabflensburg/open-monuments-map" target="_blank">GitHub</a> einsehbar. Die
+          Software kann von Städten, Kommunen und Ländern kostenfrei und lizenzfrei genutzt und angepasst werden. Die
+          Anwendung wurde von ehrenamtlichen Mitgliedern des OK Lab Flensburg entwickelt.</p>
       </div>
 
-      <div id="sidebarContent" class="relative bg-white border border-slate-300 leading-normal lg:text-lg m-3 rounded text-black text-md hidden">
+      <div id="sidebarContent"
+        class="relative bg-white border border-slate-300 leading-normal lg:text-lg m-3 rounded text-black text-md hidden">
         <div id="detailImage"></div>
         <ul class="p-3 space-y-3" id="detailList"></ul>
       </div>
@@ -61,4 +94,5 @@
 
   <script type="module" src="./main.js"></script>
 </body>
+
 </html>

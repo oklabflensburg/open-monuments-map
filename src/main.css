@@ -8,7 +8,8 @@
 
 @supports (font-variation-settings: normal) {
   :root {
-    font-family: InterVariable, sans-serif; font-optical-sizing: auto;
+    font-family: InterVariable, sans-serif;
+    font-optical-sizing: auto;
   }
 }
 
@@ -28,7 +29,8 @@
   src: url('../static/fonts/InterVariable-Italic.woff2') format('woff2');
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
@@ -166,8 +168,6 @@ html, body {
   background-color: rgb(64 64 65 / 70%);
 }
 
-
-
 .leaflet-left {
   right: 0;
 }
@@ -176,32 +176,32 @@ html, body {
   bottom: 0;
 }
 
-  @media (width >= 640px) {
-    .sm\:container {
-      max-width: 640px;
-    }
+@media (width >=640px) {
+  .sm\:container {
+    max-width: 640px;
   }
+}
 
-  @media (width >= 768px) {
-    .sm\:container {
-      max-width: 768px;
-    }
+@media (width >=768px) {
+  .sm\:container {
+    max-width: 768px;
   }
+}
 
-  @media (width >= 1024px) {
-    .sm\:container {
-      max-width: 1024px;
-    }
+@media (width >=1024px) {
+  .sm\:container {
+    max-width: 1024px;
   }
+}
 
-  @media (width >= 1280px) {
-    .sm\:container {
-      max-width: 1280px;
-    }
+@media (width >=1280px) {
+  .sm\:container {
+    max-width: 1280px;
   }
+}
 
-  @media (width >= 1536px) {
-    .sm\:container {
-      max-width: 1536px;
-    }
+@media (width >=1536px) {
+  .sm\:container {
+    max-width: 1536px;
   }
+}

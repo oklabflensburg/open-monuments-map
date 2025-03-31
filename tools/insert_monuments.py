@@ -6,9 +6,8 @@ import psycopg2
 import json
 
 from shapely import wkb
-from psycopg2 import ProgrammingError
 from psycopg2.errors import UniqueViolation, NotNullViolation
-from shapely.geometry import shape, Point, Polygon, MultiPolygon
+from shapely.geometry import shape, Point
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -19,11 +18,11 @@ load_dotenv(dotenv_path=env_path)
 
 try:
     conn = psycopg2.connect(
-        database = os.getenv('DB_NAME'),
-        password = os.getenv('DB_PASS'),
-        user = os.getenv('DB_USER'),
-        host = os.getenv('DB_HOST'),
-        port = os.getenv('DB_PORT')
+        database=os.getenv('DB_NAME'),
+        password=os.getenv('DB_PASS'),
+        user=os.getenv('DB_USER'),
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT')
     )
     conn.autocommit = True
 except Exception as e:
@@ -82,9 +81,8 @@ def insert_scope(cur, monument_id, scope_label):
 
     try:
         cur.execute(monument_x_scope_sql, (monument_id, scope_id))
-    except NotNullViolation as e:
+    except NotNullViolation:
         pass
-
 
 
 def insert_object(cur, properties, geometry):
@@ -92,7 +90,7 @@ def insert_object(cur, properties, geometry):
     street = properties['street']
     housenumber = properties['housenumber']
     postcode = properties['postcode']
-    city =  properties['city']
+    city = properties['city']
     monument_type = properties['monument_type']
     description = properties['description']
     designation = properties['designation']
@@ -111,7 +109,11 @@ def insert_object(cur, properties, geometry):
     '''
 
     try:
-        cur.execute(sql, (object_id, monument_type, street, housenumber, postcode, city, image_url, description, designation, slug, wkb_geometry))
+        cur.execute(sql, (
+            object_id, monument_type, street, housenumber, postcode, city,
+            image_url, description, designation, slug, wkb_geometry
+        ))
+
         monument_id = cur.fetchone()[0]
     except UniqueViolation as e:
         return

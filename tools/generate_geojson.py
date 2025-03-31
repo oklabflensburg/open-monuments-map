@@ -9,25 +9,29 @@ from pathlib import Path
 def get_data(src):
     with open(src, 'r') as f:
         d = json.loads(f.read())
-    
+
     return d
 
 
 def replace_umlauts(string):
     slug = string
 
-    tpl = (('ü', 'ue'), ('Ü', 'Ue'), ('ä', 'ae'), ('Ä', 'Ae'), ('ö', 'oe'), ('Ö', 'Oe'), ('ß', 'ss'))
+    tpl = (('ü', 'ue'), ('Ü', 'Ue'), ('ä', 'ae'),
+           ('Ä', 'Ae'), ('ö', 'oe'), ('Ö', 'Oe'), ('ß', 'ss'))
 
     for item1, item2 in tpl:
-	    slug = slug.replace(item1, item2)
+        slug = slug.replace(item1, item2)
 
     return slug
 
 
 def get_slug(designation, street, housenumber, city):
-    title = re.sub(r'[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
-    city_parsed = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', city)
-    street_parsed = re.sub(r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', street)
+    title = re.sub(
+        r'[\d\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', designation)
+    city_parsed = re.sub(
+        r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', city)
+    street_parsed = re.sub(
+        r'[\s!@#\$%\^&\*\(\)\[\]{};:,\./<>\?\|`~\-=_\+]', ' ', street)
 
     slug = f'{title} {street_parsed} {housenumber} {city_parsed}'.lower().strip()
     slug = re.sub(r'\s+', ' ', replace_umlauts(slug)).replace(' ', '-')

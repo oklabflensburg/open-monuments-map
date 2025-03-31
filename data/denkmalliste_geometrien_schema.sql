@@ -1,20 +1,30 @@
--- POSTGIS UND PGCRYPTO ERWEITERUNG LADEN
+-- POSTGIS ERWEITERUNG LADEN
 CREATE EXTENSION IF NOT EXISTS postgis;
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 
--- HILFSTABELLE GEOMETRIEN DENKMALLISTE
-DROP TABLE IF EXISTS sh_monument_boundaries CASCADE;
+-- TABELLE GEOMETRIEN DENKMALLISTE
+DROP TABLE IF EXISTS sh_monument_boundary CASCADE;
 
-CREATE TABLE IF NOT EXISTS sh_monument_boundaries (
-  id SERIAL,
-  object_id INT,
-  wkb_geometry GEOMETRY(GEOMETRY, 4326),
-  PRIMARY KEY(id)
+CREATE TABLE IF NOT EXISTS sh_monument_boundary (
+    id SERIAL PRIMARY KEY,
+    layer_name TEXT NOT NULL,
+    district TEXT NOT NULL,
+    municipality TEXT NOT NULL,
+    street TEXT,
+    housenumber TEXT,
+    description TEXT,
+    monument_type TEXT,
+    monument_function TEXT,
+    object_number TEXT UNIQUE NOT NULL,
+    photo_link TEXT,
+    detail_link TEXT,
+    last_update DATE,
+    wkb_geometry GEOMETRY(GEOMETRY, 4326) NOT NULL
 );
 
 
+-- INDEX
+CREATE INDEX IF NOT EXISTS idx_sh_monument_boundary_object_number ON sh_monument_boundary (object_number);
+
 -- GEOMETRY INDEX
-CREATE INDEX IF NOT EXISTS sh_monument_boundaries_object_id_idx ON sh_monument_boundaries (object_id);
-CREATE INDEX IF NOT EXISTS sh_monument_boundaries_wkb_geometry_idx ON sh_monument_boundaries USING GIST (wkb_geometry);
-CREATE UNIQUE INDEX IF NOT EXISTS sh_monument_boundaries_object_id_wkb_geometry_hash_idx ON sh_monument_boundaries (object_id, (md5(wkb_geometry::text)));
+CREATE INDEX IF NOT EXISTS idx_sh_monument_boundary_wkb_geometry ON sh_monument_boundary USING GIST (wkb_geometry);

@@ -69,9 +69,8 @@ function updateScreen(screen) {
 }
 
 
-function fetchBlob(url, designation) {
+function fetchBlob(url, monumentFunction) {
   if (!url || typeof url !== 'string') {
-    console.error('Invalid URL passed to fetchBlob:', url)
     return
   }
 
@@ -92,7 +91,7 @@ function fetchBlob(url, designation) {
       const imageUrl = URL.createObjectURL(blob)
       const imageElement = document.createElement('img')
       imageElement.src = imageUrl
-      imageElement.setAttribute('alt', designation || 'Denkmalschutz')
+      imageElement.setAttribute('alt', monumentFunction || 'Denkmalschutz')
 
       const divElement = document.createElement('div')
       divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
@@ -103,9 +102,6 @@ function fetchBlob(url, designation) {
       if (!container) {
         console.error('Element #detailImage not found')
         return
-      }
-      else {
-        container.innerHTML = ''
       }
 
       container.appendChild(imageElement)
@@ -134,17 +130,21 @@ function isValidUrl(string) {
 
 
 function renderMonumentMeta(data) {
-  const slug = data.slug
+  let slug = data.slug
   const street = data.street
   const housenumber = data.housenumber
   const postcode = data.postcode
   const city = data.city
+  const lastUpdate = data.last_update
   const monumentType = data.monument_type
   const description = data.description
-  const designation = data.designation
-  const objectId = data.object_id
-  const monumentReason = data.monument_reason
+  const monumentFunction = data.monument_function
+  const objectNumber = data.object_number
   const monumentScope = data.monument_scope
+
+  if (typeof slug !== 'string') {
+    slug = monumentFunction || objectNumber 
+  }
 
   const title = `${capitalizeEachWord(slug)} - Digitale Denkmalkarte`
 
@@ -154,7 +154,7 @@ function renderMonumentMeta(data) {
 
   let detailOutput = ''
 
-  detailOutput += `<li class="pb-2 text-xl lg:text-2xl"><strong>${designation}</strong></li>`
+  detailOutput += `<li class="pb-2 text-xl lg:text-2xl"><strong>${monumentFunction}</strong></li>`
   detailOutput += `<li class="last-of-type:pb-2 py-1 mb-3">${street} ${housenumber}<br>${postcode} ${city}</li>`
   detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Beschreibung</strong><br>${description}</li>`
 
@@ -162,8 +162,14 @@ function renderMonumentMeta(data) {
     detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${monumentScope}</li>`
   }
 
-  if (monumentReason) {
-    detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Begründung</strong><br>${monumentReason}</li>`
+  if (lastUpdate) {
+    const date = new Date(lastUpdate)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    const formattedDate = `${day}.${month}.${year}`
+
+    detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Aktualisiert</strong><br>${formattedDate}</li>`
   }
 
   detailOutput += `<li class="pt-2"><strong>Merkmal</strong><br>${monumentType}</li>`
@@ -211,7 +217,7 @@ async function fetchJsonData(url) {
 
 
 async function fetchMonumentDetailBySlug(slug) {
-  const url = `https://api.oklabflensburg.de/monument/v1/detail?slug=${slug}`
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/detail?slug=${slug}`
 
   const data = await fetchJsonData(url)
   const zoomLevelDetail = 17
@@ -232,12 +238,14 @@ async function fetchMonumentDetailBySlug(slug) {
     }]
   }
 
-  if (isValidUrl(data[0].image_url)) {
-    fetchBlob(data[0].image_url, data[0].designation)
+  if (isValidUrl(data[0].photo_link)) {
+    document.querySelector('#detailImage').innerHTML = ''
+    fetchBlob(data[0].photo_link, data[0].monument_function)
   }
 
   renderMonumentMeta(data[0])
-  addMonumentsToMap(geoJsonData, true, zoomLevelDetail)
+  // addMonumentsToMap(geoJsonData, true, zoomLevelDetail)
+  fetchMonumentPointsByBounds()
 
   const matchingMarker = findMarkerById(data[0]['id'])
 
@@ -248,7 +256,7 @@ async function fetchMonumentDetailBySlug(slug) {
 
 
 async function fetchMonumentDetailById(id) {
-  const url = `https://api.oklabflensburg.de/monument/v1/details?monument_id=${id}`
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/details?monument_id=${id}`
 
   const data = await fetchJsonData(url)
   const zoomLevelDetail = 17
@@ -269,14 +277,13 @@ async function fetchMonumentDetailById(id) {
     }]
   }
 
-  if (isValidUrl(data[0].image_url)) {
-    fetchBlob(data[0].image_url, data[0].designation)
+  if (isValidUrl(data[0].photo_link)) {
+    fetchBlob(data[0].photo_link, data[0].monument_function)
   }
 
   navigateTo(data[0]['slug'])
   renderMonumentMeta(data[0])
-  addMonumentsToMap(geoJsonData, addMonumentsByBounds, zoomLevelDetail)
-
+  // addMonumentsToMap(geoJsonData, addMonumentsByBounds, zoomLevelDetail)
 
   const matchingMarker = findMarkerById(data[0]['id'])
 
@@ -286,7 +293,6 @@ async function fetchMonumentDetailById(id) {
 }
 
 
-// https://api.oklabflensburg.de/monument/v1/geometries
 async function fetchMonumentPointsByBounds() {
   const bounds = map.getBounds()
   const bbox = {
@@ -296,11 +302,21 @@ async function fetchMonumentPointsByBounds() {
     ymax: bounds.getNorth()
   }
 
-  const url = `https://api.oklabflensburg.de/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
 
   const data = await fetchJsonData(url)
 
   addMonumentsToMap(data, addMonumentsByBounds, zoomLevelInitial)
+
+  // Re-select the previous selected marker, if any
+  if (previousSelectedMarker) {
+    const previousMarkerId = previousSelectedMarker.feature.id
+    const newSelectedMarker = findMarkerById(previousMarkerId)
+
+    if (newSelectedMarker) {
+      setSelectedMarker(newSelectedMarker)
+    }
+  }
 }
 
 
@@ -416,10 +432,23 @@ window.onload = () => {
   map.on('click', cleanMonumentMeta)
 
   // Sidebar close button handler
-  document.querySelector('#sidebarCloseButton').addEventListener('click', function (e) {
-    e.preventDefault()
-    cleanMonumentMeta()
-  })
+  const sidebarCloseButton = document.querySelector('#sidebarCloseButton')
+  if (sidebarCloseButton) {
+    sidebarCloseButton.addEventListener('click', function (e) {
+      e.preventDefault()
+      cleanMonumentMeta()
+    })
+  }
+
+  // Sidebar toggle button handler
+  const sidebarToggle = document.querySelector('#sidebarToggle')
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function (e) {
+      e.preventDefault()
+      const sidebar = document.querySelector('#sidebar')
+      sidebar.classList.toggle('translate-y-full')
+    })
+  }
 
   // Get the current path and determine screen
   const path = decodeURIComponent(window.location.pathname)
