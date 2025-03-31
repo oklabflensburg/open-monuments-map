@@ -143,7 +143,7 @@ function renderMonumentMeta(data) {
   const monumentScope = data.monument_scope
 
   if (typeof slug !== 'string') {
-    slug = monumentFunction || objectNumber 
+    slug = monumentFunction || objectNumber
   }
 
   const title = `${capitalizeEachWord(slug)} - Digitale Denkmalkarte`
