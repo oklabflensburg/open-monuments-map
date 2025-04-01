@@ -86,6 +86,15 @@
 
       <div id="sidebarContent"
         class="relative bg-white border border-slate-300 leading-normal lg:text-lg m-3 rounded text-black text-md hidden">
+        <style>
+          #detailImage {
+            display: none;
+          }
+
+          #detailImage:has(img.loaded) {
+            display: block;
+          }
+        </style>
         <div id="detailImage"></div>
         <ul class="p-3 space-y-3" id="detailList"></ul>
       </div>

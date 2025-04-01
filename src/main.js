@@ -131,32 +131,27 @@ async function fetchJsonData(url) {
 async function fetchBlob(url, monumentFunction) {
   if (!url || typeof url !== 'string') return
 
-  try {
-    const response = await fetch(url, { method: 'get', mode: 'cors' })
-    if (!response.ok) {
-      console.warn(`${url} returned HTTP status code ${response.status}`)
-      return
-    }
-    const blob = await response.blob()
-    const imageUrl = URL.createObjectURL(blob)
-    const imageElement = document.createElement('img')
-    imageElement.src = imageUrl
-    imageElement.setAttribute('alt', monumentFunction || 'Denkmalschutz')
+  const container = document.querySelector('#detailImage')
+  container.innerHTML = ''
 
-    const divElement = document.createElement('div')
-    divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
-    divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
+  const imageElement = document.createElement('img')
+  imageElement.src = url
 
-    const container = document.querySelector('#detailImage')
-    if (!container) {
-      console.error('Element #detailImage not found')
-      return
-    }
-    container.appendChild(imageElement)
-    container.appendChild(divElement)
-  } catch (error) {
-    console.error('Error in fetchBlob:', error)
+  imageElement.onload = () => { imageElement.classList.add('loaded') }
+  // imageElement.onerror = () => { container.classList.add('hidden') }
+  imageElement.setAttribute('alt', monumentFunction || 'Denkmalschutz')
+
+  const divElement = document.createElement('div')
+  divElement.classList.add('px-3', 'py-2', 'w-full', 'text-xs', 'text-gray-100', 'bg-gray-600')
+  divElement.innerText = 'Foto © Landesamt für Denkmalpflege'
+
+  if (!container) {
+    console.error('Element #detailImage not found')
+    return
   }
+
+  container.appendChild(imageElement)
+  container.appendChild(divElement)
 }
 
 async function fetchMonumentPointsByBounds() {
