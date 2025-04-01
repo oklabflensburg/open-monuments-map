@@ -1,18 +1,19 @@
 #!./venv/bin/python
 
 import os
-import click
-import psycopg2
 import json
+import psycopg2
+import click
+import httpx
 
-from shapely import wkb
-from psycopg2.errors import UniqueViolation, NotNullViolation
-from shapely.geometry import shape, Point
+from psycopg2.errors import UniqueViolation
 from dotenv import load_dotenv
 from pathlib import Path
 
 
+data_directory = Path('../data')
 env_path = Path('../.env')
+
 load_dotenv(dotenv_path=env_path)
 
 
@@ -25,104 +26,99 @@ try:
         port=os.getenv('DB_PORT')
     )
     conn.autocommit = True
-except Exception as e:
+except Exception:
     raise
 
 
-@click.command()
-@click.argument('file')
-def main(file):
-    cur = conn.cursor()
+def request_json(url, data_directory):
+    file_object = dict()
 
-    with open(Path(file), 'r') as f:
-        features = json.loads(f.read())['features']
+    filename = ''.join(url.split('/')[-1].split('.')[:-1])
+    extension = url.split('/')[-1].split('.')[-1]
+    target = f'{data_directory}/{filename}.{extension}'
 
-    retrieve_geometries(cur, features)
+    file_object.update({
+        'name': filename,
+        'extension': extension,
+        'target': target
+    })
 
+    r = httpx.get(url, timeout=20)
 
-def retrieve_geometries(cur, features):
-    for feature in features:
-        properties = feature['properties']
+    with open(file_object['target'], 'wb') as f:
+        f.write(r.content)
 
-        insert_object(cur, properties, feature['geometry'])
-
-
-def insert_reason(cur, monument_id, reason_label):
-    reason_sql = 'INSERT INTO sh_monument_reason (label) VALUES (%s) RETURNING id'
-
-    try:
-        cur.execute(reason_sql, (reason_label,))
-    except UniqueViolation as e:
-        query_reason_sql = 'SELECT id FROM sh_monument_reason WHERE label = %s'
-        cur.execute(query_reason_sql, (reason_label,))
-
-    reason_id = cur.fetchone()[0]
-
-    monument_x_reason_sql = 'INSERT INTO sh_monument_x_reason (monument_id, reason_id) VALUES (%s, %s)'
-
-    try:
-        cur.execute(monument_x_reason_sql, (monument_id, reason_id))
-    except NotNullViolation as e:
-        pass
+    return file_object
 
 
-def insert_scope(cur, monument_id, scope_label):
-    scope_sql = 'INSERT INTO sh_monument_scope (label) VALUES (%s) RETURNING id'
+def get_data(filename):
+    with open(filename, 'r') as f:
+        d = json.loads(f.read())
 
-    try:
-        cur.execute(scope_sql, (scope_label,))
-    except UniqueViolation as e:
-        query_scope_sql = 'SELECT id FROM sh_monument_scope WHERE label = %s'
-        cur.execute(query_scope_sql, (scope_label,))
-
-    scope_id = cur.fetchone()[0]
-
-    monument_x_scope_sql = 'INSERT INTO sh_monument_x_scope (monument_id, scope_id) VALUES (%s, %s)'
-
-    try:
-        cur.execute(monument_x_scope_sql, (monument_id, scope_id))
-    except NotNullViolation:
-        pass
+    return d
 
 
-def insert_object(cur, properties, geometry):
-    object_id = properties['object_id']
-    street = properties['street']
-    housenumber = properties['housenumber']
-    postcode = properties['postcode']
-    city = properties['city']
-    monument_type = properties['monument_type']
-    description = properties['description']
-    designation = properties['designation']
-    image_url = properties['image_url']
-    reasons = properties['reasons']
-    scopes = properties['scopes']
-    slug = properties['slug']
+def insert_object(cur, data):
+    print(data)
 
-    g = Point(shape(geometry))
-    wkb_geometry = wkb.dumps(g, hex=True, srid=4326)
+    fields = {
+        'address_location': 'Adresse-Lage',
+        'description': 'Beschreibung',
+        'designation': 'Bezeichnung',
+        'monument_type': 'Kulturdenkmaltyp',
+        'protection_scope': 'Schutzumfang',
+        'municipality': 'Gemeinde',
+        'justification': 'Begründung',
+        'object_number': 'Objektnummer',
+        'district': 'Kreis',
+        'image_url': 'FotoURL'
+    }
+
+    variables = {}
+
+    for var_name, key in fields.items():
+        value = data.get(key, None)
+        if key in ['Schutzumfang', 'Begründung'] and isinstance(value, list):
+            value = json.dumps(value)
+        variables[var_name] = value
+
+    address_location = variables['address_location']
+    description = variables['description']
+    designation = variables['designation']
+    monument_type = variables['monument_type']
+    protection_scope = variables['protection_scope']
+    municipality = variables['municipality']
+    justification = variables['justification']
+    object_number = variables['object_number']
+    district = variables['district']
+    image_url = variables['image_url']
 
     sql = '''
-        INSERT INTO sh_monument (object_id, monument_type, street, housenumber, postcode,
-            city, image_url, description, designation, slug, wkb_geometry)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
+    INSERT INTO sh_monument (object_number, monument_type,
+        address_location, description, designation, protection_scope,
+        municipality, justification, district, image_url)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
     '''
 
     try:
         cur.execute(sql, (
-            object_id, monument_type, street, housenumber, postcode, city,
-            image_url, description, designation, slug, wkb_geometry
+            object_number, monument_type, address_location, description,
+            designation, protection_scope, municipality, justification,
+            district, image_url
         ))
-
-        monument_id = cur.fetchone()[0]
-    except UniqueViolation as e:
+    except UniqueViolation:
         return
 
-    for reason in reasons:
-        insert_reason(cur, monument_id, reason)
 
-    for scope in scopes:
-        insert_scope(cur, monument_id, scope)
+@click.command()
+@click.argument('url')
+def main(url):
+    file_object = request_json(url, data_directory)
+    rows = get_data(file_object['target'])
+
+    cursor = conn.cursor()
+    for row in rows:
+        insert_object(cursor, row)
 
 
 if __name__ == '__main__':
