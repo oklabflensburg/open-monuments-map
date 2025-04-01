@@ -37,13 +37,12 @@ except Exception as e:
 @click.argument('file')
 def main(file):
     cur = conn.cursor()
-    '''
+
     with open(Path(file), 'r') as f:
         features = json.loads(f.read())['features']
 
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
         pool.map(process_feature, features)
-    '''
 
     create_processed_table(cur)
 
@@ -269,7 +268,7 @@ def process_row(row):
                     monument_type, monument_function, street, housenumber, city
                 )
 
-                slug = f'{slug}#{monument_id}'
+                slug = f'{slug}-i{monument_id}'
 
                 cur.execute(
                     "UPDATE public.sh_monument_boundary_processed SET slug = %s WHERE id = %s;",
