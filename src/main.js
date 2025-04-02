@@ -163,7 +163,19 @@ async function fetchMonumentPointsByBounds() {
     ymax: bounds.getNorth(),
   }
 
-  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/geometries?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/bounds?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
+  const data = await fetchJsonData(url)
+  addMonumentsToMap(data, addMonumentsByBounds, zoomLevelInitial)
+
+  if (previousSelectedMarker) {
+    const previousMarkerId = previousSelectedMarker.feature.id
+    const newSelectedMarker = findMarkerById(previousMarkerId)
+    if (newSelectedMarker) setSelectedMarker(newSelectedMarker)
+  }
+}
+
+async function fetchMonumentPointsByPosition(lat, lng) {
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/radius?lat=${lat}&lng=${lng}`
   const data = await fetchJsonData(url)
   addMonumentsToMap(data, addMonumentsByBounds, zoomLevelInitial)
 
@@ -175,7 +187,7 @@ async function fetchMonumentPointsByBounds() {
 }
 
 async function fetchMonumentDetailBySlug(slug) {
-  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/detail?slug=${slug}`
+  const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/details?slug=${slug}`
   const data = await fetchJsonData(url)
 
   if (!data || !data[0]) return
@@ -223,7 +235,6 @@ async function fetchMonumentDetailById(id) {
   renderMonumentMeta(data[0])
 }
 
-// UI-related functions
 function renderMonumentMeta(data) {
   const { slug, street, housenumber, postcode, city, last_update, monument_type, description, monument_function, object_number, monument_scope } = data
 
@@ -292,6 +303,24 @@ window.onload = async () => {
   document.querySelector('#sidebarToggle')?.addEventListener('click', (e) => {
     e.preventDefault()
     document.querySelector('#sidebar').classList.toggle('translate-y-full')
+  })
+
+  document.getElementById('geoLocation').addEventListener('change', function (event) {
+    if (event.target.name === 'myLocation' && event.target.checked) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            fetchMonumentPointsByPosition(position.coords.latitude, position.coords.longitude)
+            map.setView([position.coords.latitude, position.coords.longitude], 16)
+          },
+          (error) => {
+            console.error('Error obtaining geolocation:', error.message);
+          }
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
+    }
   })
 
   const path = decodeURIComponent(window.location.pathname)
