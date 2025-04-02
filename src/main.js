@@ -20,7 +20,7 @@ const addMonumentsByBounds = false
 const map = L.map('map', { zoomControl: false }).setView(center, zoomLevelInitial)
 const markerClusterGroup = L.markerClusterGroup({
   zoomToBoundsOnClick: true,
-  disableClusteringAtZoom: 19,
+  disableClusteringAtZoom: 19
 })
 let zoomControl = L.control.zoom({ position: 'bottomright' }).addTo(map)
 
@@ -29,14 +29,14 @@ const defaultIcon = L.icon({
   iconUrl: markerDefault,
   iconSize: [30, 36],
   iconAnchor: [15, 36],
-  tooltipAnchor: [0, -37],
+  tooltipAnchor: [0, -37]
 })
 
 const selectedIcon = L.icon({
   iconUrl: markerSelected,
   iconSize: [30, 36],
   iconAnchor: [15, 36],
-  tooltipAnchor: [0, -37],
+  tooltipAnchor: [0, -37]
 })
 
 // State variables
@@ -56,14 +56,17 @@ function isValidUrl(string) {
   try {
     const url = new URL(string)
     return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
+  }
+  catch {
     return false
   }
 }
 
 function findMarkerById(id) {
   const marker = markerMap.get(id)
-  if (marker && typeof marker.setIcon === 'function') return marker
+  if (marker && typeof marker.setIcon === 'function') {
+    return marker
+  }
   console.warn(`Marker with ID ${id} is not a valid Leaflet marker.`)
   return null
 }
@@ -73,15 +76,21 @@ function setSelectedMarker(marker) {
     console.error('Invalid marker passed to setSelectedMarker:', marker)
     return
   }
-  if (previousSelectedMarker) previousSelectedMarker.setIcon(defaultIcon)
+  if (previousSelectedMarker) {
+    previousSelectedMarker.setIcon(defaultIcon)
+  }
   marker.setIcon(selectedIcon)
   previousSelectedMarker = marker
 }
 
 // Map-related functions
 function addMonumentsToMap(data, fetchAdditionalMonuments, zoomLevel) {
-  if (currentLayer) currentLayer.removeLayer(currentLayer)
-  else currentLayer = markerClusterGroup
+  if (currentLayer) {
+    currentLayer.removeLayer(currentLayer)
+  }
+  else {
+    currentLayer = markerClusterGroup
+  }
 
   const geojsonGroup = L.geoJSON(data, {
     onEachFeature(feature, layer) {
@@ -96,9 +105,9 @@ function addMonumentsToMap(data, fetchAdditionalMonuments, zoomLevel) {
     pointToLayer(feature, latlng) {
       return L.marker(latlng, { icon: defaultIcon }).bindTooltip(feature.properties.label, {
         permanent: false,
-        direction: 'top',
+        direction: 'top'
       })
-    },
+    }
   })
 
   currentLayer.addLayer(geojsonGroup)
@@ -120,16 +129,21 @@ function handleWindowSize() {
 async function fetchJsonData(url) {
   try {
     const response = await fetch(url, { method: 'GET' })
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`)
+    }
     return await response.json()
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Fetch error:', error)
     return null
   }
 }
 
-async function fetchBlob(url, monumentFunction) {
-  if (!url || typeof url !== 'string') return
+function fetchBlob(url, monumentFunction) {
+  if (!url || typeof url !== 'string') {
+    return
+  }
 
   const container = document.querySelector('#detailImage')
   container.innerHTML = ''
@@ -137,7 +151,9 @@ async function fetchBlob(url, monumentFunction) {
   const imageElement = document.createElement('img')
   imageElement.src = url
 
-  imageElement.onload = () => { imageElement.classList.add('loaded') }
+  imageElement.onload = () => {
+    imageElement.classList.add('loaded')
+  }
   // imageElement.onerror = () => { container.classList.add('hidden') }
   imageElement.setAttribute('alt', monumentFunction || 'Denkmalschutz')
 
@@ -160,7 +176,7 @@ async function fetchMonumentPointsByBounds() {
     xmin: bounds.getWest(),
     ymin: bounds.getSouth(),
     xmax: bounds.getEast(),
-    ymax: bounds.getNorth(),
+    ymax: bounds.getNorth()
   }
 
   const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/bounds?xmin=${bbox.xmin}&ymin=${bbox.ymin}&xmax=${bbox.xmax}&ymax=${bbox.ymax}`
@@ -170,7 +186,9 @@ async function fetchMonumentPointsByBounds() {
   if (previousSelectedMarker) {
     const previousMarkerId = previousSelectedMarker.feature.id
     const newSelectedMarker = findMarkerById(previousMarkerId)
-    if (newSelectedMarker) setSelectedMarker(newSelectedMarker)
+    if (newSelectedMarker) {
+      setSelectedMarker(newSelectedMarker)
+    }
   }
 }
 
@@ -182,7 +200,9 @@ async function fetchMonumentPointsByPosition(lat, lng) {
   if (previousSelectedMarker) {
     const previousMarkerId = previousSelectedMarker.feature.id
     const newSelectedMarker = findMarkerById(previousMarkerId)
-    if (newSelectedMarker) setSelectedMarker(newSelectedMarker)
+    if (newSelectedMarker) {
+      setSelectedMarker(newSelectedMarker)
+    }
   }
 }
 
@@ -190,7 +210,9 @@ async function fetchMonumentDetailBySlug(slug) {
   const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/details?slug=${slug}`
   const data = await fetchJsonData(url)
 
-  if (!data || !data[0]) return
+  if (!data || !data[0]) {
+    return
+  }
 
   const geoJsonData = {
     type: 'FeatureCollection',
@@ -199,9 +221,9 @@ async function fetchMonumentDetailBySlug(slug) {
         type: 'Feature',
         id: data[0].id,
         geometry: data[0].geojson,
-        properties: { label: data[0].label, slug: data[0].slug },
-      },
-    ],
+        properties: { label: data[0].label, slug: data[0].slug }
+      }
+    ]
   }
 
   if (isValidUrl(data[0].photo_link)) {
@@ -218,18 +240,22 @@ async function fetchMonumentDetailBySlug(slug) {
     await fetchMonumentPointsByBounds()
     matchingMarker = findMarkerById(data[0].id)
   }
-  if (matchingMarker) setSelectedMarker(matchingMarker)
-
-  return data
+  if (matchingMarker) {
+    setSelectedMarker(matchingMarker)
+  }
 }
 
 async function fetchMonumentDetailById(id) {
   const url = `${process.env.PARCEL_BASE_API_URL}/monument/v1/details?monument_id=${id}`
   const data = await fetchJsonData(url)
 
-  if (!data || !data[0]) return
+  if (!data || !data[0]) {
+    return
+  }
 
-  if (isValidUrl(data[0].photo_link)) fetchBlob(data[0].photo_link, data[0].monument_function)
+  if (isValidUrl(data[0].photo_link)) {
+    fetchBlob(data[0].photo_link, data[0].monument_function)
+  }
 
   navigateTo(data[0].slug)
   renderMonumentMeta(data[0])
@@ -249,7 +275,9 @@ function renderMonumentMeta(data) {
     <li class="last-of-type:pb-2 pt-2"><strong>Beschreibung</strong><br>${description}</li>
   `
 
-  if (monument_scope) detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${monument_scope}</li>`
+  if (monument_scope) {
+    detailOutput += `<li class="last-of-type:pb-2 pt-2"><strong>Schutzumfang</strong><br>${monument_scope}</li>`
+  }
   if (last_update) {
     const date = new Date(last_update)
     const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`
@@ -274,7 +302,9 @@ function cleanMonumentMeta() {
 }
 
 function navigateTo(screen, updateHistory = true) {
-  if (updateHistory) history.pushState({ screen }, '', screen === 'home' ? '/' : `/${screen}`)
+  if (updateHistory) {
+    history.pushState({ screen }, '', screen === 'home' ? '/' : `/${screen}`)
+  }
   updateScreen(screen)
 }
 
@@ -289,7 +319,7 @@ window.onload = async () => {
   L.tileLayer('https://tiles.oklabflensburg.de/sgm/{z}/{x}/{y}.png', {
     maxZoom: 20,
     tileSize: 256,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="dc:rights">OpenStreetMap</a> contributors',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="dc:rights">OpenStreetMap</a> contributors'
   }).addTo(map)
 
   map.on('moveend', fetchMonumentPointsByBounds)
@@ -314,25 +344,29 @@ window.onload = async () => {
             map.setView([position.coords.latitude, position.coords.longitude], 16)
           },
           (error) => {
-            console.error('Error obtaining geolocation:', error.message);
+            console.error('Error obtaining geolocation:', error.message)
           }
-        );
-      } else {
-        console.error('Geolocation is not supported by this browser.');
+        )
+      }
+      else {
+        console.error('Geolocation is not supported by this browser.')
       }
     }
   })
 
   const path = decodeURIComponent(window.location.pathname)
   const screen = path === '/' ? 'home' : path.slice(1)
-  if (!history.state) history.replaceState({ screen }, '', path)
+  if (!history.state) {
+    history.replaceState({ screen }, '', path)
+  }
 
   updateScreen(screen)
 
   if (screen === 'home') {
     map.setView(center, zoomLevelInitial)
     fetchMonumentPointsByBounds()
-  } else {
+  }
+  else {
     const data = await fetchMonumentDetailBySlug(screen)
     if (data && data[0] && data[0].geojson && data[0].geojson.coordinates) {
       const [lng, lat] = data[0].geojson.coordinates
@@ -346,7 +380,10 @@ window.addEventListener('popstate', (event) => {
   if (screen === 'home') {
     cleanMonumentMeta()
     fetchMonumentPointsByBounds()
-  } else fetchMonumentDetailBySlug(screen)
+  }
+  else {
+    fetchMonumentDetailBySlug(screen)
+  }
 })
 
 window.addEventListener('resize', handleWindowSize)
