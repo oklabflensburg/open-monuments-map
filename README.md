@@ -60,18 +60,19 @@ git clone https://github.com/oklabflensburg/open-monuments-map.git
 Create a dot `.env` file inside the project root. Make sure to add the following content and repace values.
 
 ```
-BASE_URL=http://localhost
+PARCEL_BASE_URL=
+PARCEL_BASE_API_URL=
 
-CONTACT_MAIL=mail@example.com
-CONTACT_PHONE="+49xx"
+PARCEL_CONTACT_MAIL=""
+PARCEL_CONTACT_PHONE=""
 
-PRIVACY_CONTACT_PERSON="Firstname Lastname"
+PARCEL_PRIVACY_CONTACT_PERSON=""
 
-ADDRESS_NAME="Address Name"
-ADDRESS_STREET="Address Street"
-ADDRESS_HOUSE_NUMBER="House Number"
-ADDRESS_POSTAL_CODE="Postal Code"
-ADDRESS_CITY="City"
+PARCEL_ADDRESS_NAME=""
+PARCEL_ADDRESS_STREET=""
+PARCEL_ADDRESS_HOUSE_NUMBER=0
+PARCEL_ADDRESS_POSTAL_CODE=00000
+PARCEL_ADDRESS_CITY=""
 
 DB_PASS=postgres
 DB_HOST=localhost
