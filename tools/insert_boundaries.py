@@ -199,7 +199,7 @@ def create_processed_table(cur):
 
     CREATE TABLE public.sh_monument_boundary_processed AS 
     WITH polygons AS (
-        SELECT 
+        SELECT
             b.id,
             b.layer_name,
             b.district,
@@ -218,6 +218,7 @@ def create_processed_table(cur):
     )
     SELECT 
         p.*,
+        count(*) OVER (PARTITION BY p.id) AS polygon_count,
         ST_PointOnSurface(p.polygon_geom) AS polygon_center
     FROM polygons p;
     '''
