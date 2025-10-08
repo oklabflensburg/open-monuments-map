@@ -23,6 +23,7 @@ const markerClusterGroup = L.markerClusterGroup({
   disableClusteringAtZoom: 19
 })
 let zoomControl = L.control.zoom({ position: 'bottomright' }).addTo(map)
+const mapContainer = document.querySelector('#mapContainer')
 
 // Marker icons
 const defaultIcon = L.icon({
@@ -44,6 +45,28 @@ const markerMap = new Map()
 let isBoundsSet = false
 let previousSelectedMarker = null
 let currentLayer = null
+
+function resetSelectedMarker() {
+  if (!previousSelectedMarker || typeof previousSelectedMarker.setIcon !== 'function') {
+    previousSelectedMarker = null
+    return
+  }
+  previousSelectedMarker.setIcon(defaultIcon)
+  previousSelectedMarker = null
+}
+
+function refreshMapSize(delay = 0) {
+  if (!mapContainer) {
+    return
+  }
+  const invalidate = () => map.invalidateSize()
+  if (delay > 0) {
+    setTimeout(invalidate, delay)
+  }
+  else {
+    requestAnimationFrame(invalidate)
+  }
+}
 
 // Utility functions
 function capitalizeEachWord(str) {
@@ -290,6 +313,11 @@ function renderMonumentMeta(data) {
   document.querySelector('#sidebar').classList.add('absolute')
   document.querySelector('#sidebar').classList.remove('hidden')
   document.querySelector('#sidebarContent').classList.remove('hidden')
+  if (mapContainer) {
+    mapContainer.classList.remove('h-full')
+    mapContainer.classList.add('min-h-[45dvh]')
+  }
+  refreshMapSize(100)
 }
 
 function cleanMonumentMeta() {
@@ -299,6 +327,12 @@ function cleanMonumentMeta() {
   document.querySelector('#sidebar').classList.remove('absolute')
   document.querySelector('#about').classList.remove('hidden')
   document.querySelector('#sidebarContent').classList.add('hidden')
+  resetSelectedMarker()
+  if (mapContainer) {
+    mapContainer.classList.add('h-full')
+    mapContainer.classList.remove('min-h-[45dvh]')
+  }
+  refreshMapSize(100)
 }
 
 function navigateTo(screen, updateHistory = true) {
