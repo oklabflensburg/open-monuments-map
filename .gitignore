@@ -1,5 +1,6 @@
 .parcel-cache/
 node_modules/
+__pycache__/
 coverage/
 venv/
 dist/

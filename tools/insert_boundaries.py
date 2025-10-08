@@ -1,16 +1,17 @@
 import os
 import re
+import json
+import atexit
 import httpx
 import click
 import psycopg2
-import json
 import multiprocessing
+from contextlib import contextmanager
 from datetime import datetime
 
 from shapely import wkb
 from shapely.ops import transform
 from pyproj import Transformer
-from psycopg2.errors import UniqueViolation
 from shapely.geometry import shape, MultiPolygon
 from dotenv import load_dotenv
 from pathlib import Path
@@ -20,59 +21,80 @@ env_path = Path('../.env')
 load_dotenv(dotenv_path=env_path)
 
 
-try:
-    conn = psycopg2.connect(
-        database=os.getenv('DB_NAME'),
-        password=os.getenv('DB_PASS'),
-        user=os.getenv('DB_USER'),
-        host=os.getenv('DB_HOST'),
-        port=os.getenv('DB_PORT')
-    )
-    conn.autocommit = True
-except Exception as e:
-    raise e
+DB_SETTINGS = {
+    'database': os.getenv('DB_NAME'),
+    'password': os.getenv('DB_PASS'),
+    'user': os.getenv('DB_USER'),
+    'host': os.getenv('DB_HOST'),
+    'port': os.getenv('DB_PORT'),
+}
+
+BOUNDARY_TRANSFORMER = Transformer.from_crs(
+    "EPSG:25832", "EPSG:4326", always_xy=True)
+
+_WORKER_CONN = None
+
+
+def init_worker_connection():
+    global _WORKER_CONN
+    if _WORKER_CONN is None:
+        _WORKER_CONN = psycopg2.connect(**DB_SETTINGS)
+        _WORKER_CONN.autocommit = True
+        atexit.register(close_worker_connection)
+
+
+def close_worker_connection():
+    global _WORKER_CONN
+    if _WORKER_CONN is not None:
+        _WORKER_CONN.close()
+        _WORKER_CONN = None
+
+
+@contextmanager
+def worker_cursor():
+    if _WORKER_CONN is None:
+        raise RuntimeError('Database connection not initialized for worker.')
+    cur = _WORKER_CONN.cursor()
+    try:
+        yield cur
+    finally:
+        cur.close()
+
+
+def run_parallel(items, handler):
+    if not items:
+        return
+
+    processes = multiprocessing.cpu_count()
+    with multiprocessing.Pool(
+            processes=processes,
+            initializer=init_worker_connection) as pool:
+        pool.map(handler, items)
 
 
 @click.command()
 @click.argument('file')
 def main(file):
-    cur = conn.cursor()
-
     with open(Path(file), 'r') as f:
         features = json.loads(f.read())['features']
 
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-        pool.map(process_feature, features)
+    run_parallel(features, process_feature)
 
-    create_processed_table(cur)
+    with psycopg2.connect(**DB_SETTINGS) as conn:
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            rows = create_processed_table(cur)
+
+    run_parallel(rows, process_row)
 
 
 def process_feature(feature):
     try:
-        conn = psycopg2.connect(
-            database=os.getenv('DB_NAME'),
-            password=os.getenv('DB_PASS'),
-            user=os.getenv('DB_USER'),
-            host=os.getenv('DB_HOST'),
-            port=os.getenv('DB_PORT')
-        )
-        conn.autocommit = True
-        cur = conn.cursor()
-
-        properties = feature['properties']
-        insert_object(cur, properties, feature['geometry'])
-
-        cur.close()
-        conn.close()
+        with worker_cursor() as cur:
+            properties = feature['properties']
+            insert_object(cur, properties, feature['geometry'])
     except Exception as e:
         print(f"Error processing feature: {e}")
-
-
-def retrieve_geometries(cur, features):
-    for feature in features:
-        properties = feature['properties']
-
-        insert_object(cur, properties, feature['geometry'])
 
 
 def insert_object(cur, properties, geometry):
@@ -99,12 +121,9 @@ def insert_object(cur, properties, geometry):
             print(
                 f"Invalid date format for 'Stand': {last_update}. Skipping entry.")
 
-    transformer = Transformer.from_crs(
-        "EPSG:25832", "EPSG:4326", always_xy=True)
-
     g = MultiPolygon(shape(geometry))
 
-    g_transformed = transform(transformer.transform, g)
+    g_transformed = transform(BOUNDARY_TRANSFORMER.transform, g)
 
     wkb_geometry = wkb.dumps(g_transformed, hex=True, srid=4326)
 
@@ -114,19 +133,28 @@ def insert_object(cur, properties, geometry):
             description, monument_type, monument_function, object_number,
             photo_link, detail_link, last_update, wkb_geometry)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (object_number) DO UPDATE SET
+            layer_name = EXCLUDED.layer_name,
+            district = EXCLUDED.district,
+            municipality = EXCLUDED.municipality,
+            street = EXCLUDED.street,
+            housenumber = EXCLUDED.housenumber,
+            description = EXCLUDED.description,
+            monument_type = EXCLUDED.monument_type,
+            monument_function = EXCLUDED.monument_function,
+            photo_link = EXCLUDED.photo_link,
+            detail_link = EXCLUDED.detail_link,
+            last_update = EXCLUDED.last_update,
+            wkb_geometry = EXCLUDED.wkb_geometry
         RETURNING id
     '''
 
-    try:
-        cur.execute(sql, (
-            layer_name, district, municipality, street, housenumber,
-            description, monument_type, monument_function, object_number,
-            photo_link, detail_link, last_update, wkb_geometry))
-        monument_id = cur.fetchone()[0]
-        print(f'Inserted monument with ID: {monument_id}')
-    except UniqueViolation as e:
-        print(e)
-        return
+    cur.execute(sql, (
+        layer_name, district, municipality, street, housenumber,
+        description, monument_type, monument_function, object_number,
+        photo_link, detail_link, last_update, wkb_geometry))
+    monument_id = cur.fetchone()[0]
+    print(f'Upserted monument with ID: {monument_id}')
 
 
 def replace_umlauts(string):
@@ -233,49 +261,38 @@ def create_processed_table(cur):
 
     cur.execute(
         'SELECT id, monument_function, monument_type, street, housenumber, municipality, ST_X(polygon_center), ST_Y(polygon_center) FROM public.sh_monument_boundary_processed;')
-    rows = cur.fetchall()
-
-    with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-        pool.map(process_row, rows)
+    return cur.fetchall()
 
 
 def process_row(row):
     monument_id, monument_function, monument_type, street, housenumber, municipality, lon, lat = row
 
     try:
-        with psycopg2.connect(
-            database=os.getenv('DB_NAME'),
-            password=os.getenv('DB_PASS'),
-            user=os.getenv('DB_USER'),
-            host=os.getenv('DB_HOST'),
-            port=os.getenv('DB_PORT')
-        ) as conn:
-            conn.autocommit = True
-            with conn.cursor() as cur:
-                postcode, city = get_location_from_nominatim(lat, lon)
+        with worker_cursor() as cur:
+            postcode, city = get_location_from_nominatim(lat, lon)
 
-                if postcode or city:
-                    cur.execute(
-                        "UPDATE public.sh_monument_boundary_processed SET postcode = %s, city = %s WHERE id = %s;",
-                        (postcode, city, monument_id)
-                    )
-                    print(
-                        f"Updated monument ID {monument_id} with postcode {postcode} and city {city}")
-
-                city = city or f'gemeinde-{municipality}'.replace(
-                    ', Stadt', '')
-
-                slug = get_slug(
-                    monument_type, monument_function, street, housenumber, city
-                )
-
-                slug = f'{slug}-i{monument_id}'
-
+            if postcode or city:
                 cur.execute(
-                    "UPDATE public.sh_monument_boundary_processed SET slug = %s WHERE id = %s;",
-                    (slug, monument_id)
+                    "UPDATE public.sh_monument_boundary_processed SET postcode = %s, city = %s WHERE id = %s;",
+                    (postcode, city, monument_id)
                 )
-                print(f"Updated monument ID {monument_id} with slug: {slug}")
+                print(
+                    f"Updated monument ID {monument_id} with postcode {postcode} and city {city}")
+
+            city = city or f'gemeinde-{municipality}'.replace(
+                ', Stadt', '')
+
+            slug = get_slug(
+                monument_type, monument_function, street, housenumber, city
+            )
+
+            slug = f'{slug}-i{monument_id}'
+
+            cur.execute(
+                "UPDATE public.sh_monument_boundary_processed SET slug = %s WHERE id = %s;",
+                (slug, monument_id)
+            )
+            print(f"Updated monument ID {monument_id} with slug: {slug}")
     except Exception as e:
         print(f"Error processing row ID {monument_id}: {e}")
 

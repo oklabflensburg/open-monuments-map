@@ -5,8 +5,6 @@ import json
 import psycopg2
 import click
 import httpx
-
-from psycopg2.errors import UniqueViolation
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -97,17 +95,25 @@ def insert_object(cur, data):
     INSERT INTO sh_monument (object_number, monument_type,
         address_location, description, designation, protection_scope,
         municipality, justification, district, image_url)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (object_number) DO UPDATE SET
+        monument_type = EXCLUDED.monument_type,
+        address_location = EXCLUDED.address_location,
+        description = EXCLUDED.description,
+        designation = EXCLUDED.designation,
+        protection_scope = EXCLUDED.protection_scope,
+        municipality = EXCLUDED.municipality,
+        justification = EXCLUDED.justification,
+        district = EXCLUDED.district,
+        image_url = EXCLUDED.image_url
+    RETURNING id
     '''
 
-    try:
-        cur.execute(sql, (
-            object_number, monument_type, address_location, description,
-            designation, protection_scope, municipality, justification,
-            district, image_url
-        ))
-    except UniqueViolation:
-        return
+    cur.execute(sql, (
+        object_number, monument_type, address_location, description,
+        designation, protection_scope, municipality, justification,
+        district, image_url
+    ))
 
 
 @click.command()
