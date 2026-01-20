@@ -59,37 +59,25 @@ def get_data(filename):
 def insert_object(cur, data):
     print(data)
 
-    fields = {
-        'address_location': 'Adresse-Lage',
-        'description': 'Beschreibung',
-        'designation': 'Bezeichnung',
-        'monument_type': 'Kulturdenkmaltyp',
-        'protection_scope': 'Schutzumfang',
-        'municipality': 'Gemeinde',
-        'justification': 'Begründung',
-        'object_number': 'Objektnummer',
-        'district': 'Kreis',
-        'image_url': 'FotoURL'
-    }
-
-    variables = {}
-
-    for var_name, key in fields.items():
-        value = data.get(key, None)
-        if key in ['Schutzumfang', 'Begründung'] and isinstance(value, list):
-            value = json.dumps(value)
-        variables[var_name] = value
-
-    address_location = variables['address_location']
-    description = variables['description']
-    designation = variables['designation']
-    monument_type = variables['monument_type']
-    protection_scope = variables['protection_scope']
-    municipality = variables['municipality']
-    justification = variables['justification']
-    object_number = variables['object_number']
-    district = variables['district']
-    image_url = variables['image_url']
+    # Extract values directly from data dictionary
+    address_location = data.get('Adresse-Lage', None)
+    description = data.get('Beschreibung', None)
+    designation = data.get('Bezeichnung', None)
+    monument_type = data.get('Kulturdenkmaltyp', None)
+    
+    protection_scope = data.get('Schutzumfang', None)
+    if isinstance(protection_scope, list):
+        protection_scope = json.dumps(protection_scope)
+    
+    municipality = data.get('Gemeinde', None)
+    
+    justification = data.get('Begründung', None)
+    if isinstance(justification, list):
+        justification = json.dumps(justification)
+    
+    object_number = data.get('Objektnummer', None)
+    district = data.get('Kreis', None)
+    image_url = data.get('FotoURL', None)
 
     sql = '''
     INSERT INTO sh_monument (object_number, monument_type,
